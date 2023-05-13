@@ -1,6 +1,6 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext as _
-
+from django.contrib.auth import get_user_model
 
 class UserManager(BaseUserManager):
 
@@ -26,3 +26,6 @@ class UserManager(BaseUserManager):
             raise ValueError(_("SuperUser must've is_superuser=True"))
         
         return self.create_user(email, password, **extra_fields)
+
+
+

@@ -22,7 +22,7 @@ class LuminiteAdmin(UserAdmin):
     )
 
     add_fieldsets = (
-            (None, {'fields': ('email', 'password', 'password2', 'is_staff', 'is_active')}),
+            (None, {'fields': ('email', 'type', 'password', 'password2', 'is_staff', 'is_active')}),
     )
 
     search_fields = ('email', )
