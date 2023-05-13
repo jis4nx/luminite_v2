@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-class address(models.Model):
+class Address(models.Model):
     flat_no = models.CharField(max_length=255)
     street_no = models.CharField(max_length=255)
     address_line1 = models.CharField(max_length=255)
@@ -21,7 +21,7 @@ class UserProfile(models.Model):
         on_delete=models.CASCADE
     )
 
-    address = models.ForeignKey(address,null=True, on_delete=models.SET_NULL)
+    address = models.ForeignKey(Address,null=True, on_delete=models.SET_NULL)
     image = models.ImageField(default="../static/images/default.jpg")
 
 
