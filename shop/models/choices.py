@@ -27,3 +27,9 @@ class ProductSize(models.TextChoices):
     X = "X", "X"
     XL = "XL", "XL"
     XLL = "XLL", "XLL"
+
+
+class PaymentMethod(models.TextChoices):
+    BKS = "BKASH", "Bkash"
+    NGD = "NAGAD", "Nagad"
+    COD = "COD", "Cash On Deliver"

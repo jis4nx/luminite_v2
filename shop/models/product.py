@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from .choices import ProductSize, Colors, Status, DeliveryMethods
+from .choices import ProductSize, Colors, Status, DeliveryMethods, PaymentMethod
+from .user import Address
 
 
 class Category(models.Model):
@@ -11,6 +12,8 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = "categories"
+
+    # Display Sub Categories with Top Level Categories
 
     def __str__(self):
         full_path = [self.name]
@@ -35,23 +38,45 @@ class ProductItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     product_size = models.CharField(max_length=20, choices=ProductSize.choices)
     product_color = models.CharField(max_length=20, choices=Colors.choices)
-    qty = models.PositiveIntegerField()
+    qty_in_stock = models.PositiveIntegerField()
+    price = models.FloatField()
 
     def __str__(self):
         return self.product.name
 
 
+class UserPayment(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    payment_type = models.CharField(max_length=20, choices=PaymentMethod.choices)
+    account_no = models.CharField(max_length=255)
+
+
 # Product ORDER Models
 
 
-class ProductOrder(models.Model):
+class ShopCart(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    product = models.ForeignKey(ProductItem, on_delete=models.CASCADE)
-    delivery_address = models.TextField()
-    delivery_method = models.CharField(max_length=20, choices=DeliveryMethods.choices)
+    payment = models.ForeignKey(UserPayment, on_delete=models.CASCADE)
+    delivery_address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    delivery_method = models.CharField(
+        max_length=20,
+        choices=DeliveryMethods.choices
+    )
+    order_total_price = models.FloatField()
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.PENDING
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.email
+
+
+class ShopCartItem(models.Model):
+    cart = models.ForeignKey(ShopCart, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        ProductItem, on_delete=models.SET_NULL, null=True)
+    qty = models.PositiveSmallIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
