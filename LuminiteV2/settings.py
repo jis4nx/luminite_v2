@@ -16,8 +16,7 @@ SECRET_KEY = 'django-insecure-usph4x8zi!udb!=v3kbg#g5wti_j4)dny9!c@d1jxb-=5lr6yf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ["*"]
 
 
 INSTALLED_APPS = [
@@ -67,11 +66,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'LuminiteV2.wsgi.application'
 
 
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': 'db',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'NAME': 'postgres',
+        'PORT': 5432
     }
 }
 
