@@ -7,7 +7,8 @@ from .user import Address
 class Category(models.Model):
     name = models.CharField(max_length=50)
     parent = models.ForeignKey(
-        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="subcat"
+        "self", on_delete=models.CASCADE,
+        null=True, blank=True, related_name="subcat"
     )
 
     class Meta:
@@ -47,8 +48,12 @@ class ProductItem(models.Model):
 
 class UserPayment(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    payment_type = models.CharField(max_length=20, choices=PaymentMethod.choices)
+    payment_type = models.CharField(
+        max_length=20, choices=PaymentMethod.choices)
     account_no = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.payment_type}->{self.account_no}"
 
 
 # Product ORDER Models

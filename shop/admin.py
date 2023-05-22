@@ -1,6 +1,13 @@
 from django.contrib import admin
-from .models.user import UserProfile
-from .models.product import Category, ProductItem, Product, ShopCart
+from .models.user import UserProfile, Address
+from .models.product import (
+    Category,
+    ProductItem,
+    Product,
+    ShopCart,
+    ShopCartItem,
+    UserPayment
+)
 from django.contrib.admin import ModelAdmin
 
 
@@ -20,3 +27,6 @@ admin.site.register(Product)
 admin.site.register(Category)
 admin.site.register(ProductItem, ProductItemDisplay)
 admin.site.register(ShopCart)
+admin.site.register(ShopCartItem)
+admin.site.register(UserPayment)
+admin.site.register(Address)
