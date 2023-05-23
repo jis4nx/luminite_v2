@@ -2,6 +2,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext as _
 from django.contrib.auth import get_user_model
 
+
 class UserManager(BaseUserManager):
 
     def create_user(self, email, password, **extra_fields):
@@ -14,7 +15,6 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
@@ -24,8 +24,5 @@ class UserManager(BaseUserManager):
             raise ValueError(_("SuperUser must've is_staff=True"))
         if extra_fields.get('is_superuser') is not True:
             raise ValueError(_("SuperUser must've is_superuser=True"))
-        
+
         return self.create_user(email, password, **extra_fields)
-
-
-

@@ -5,7 +5,7 @@ from .user import Address
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, null=True)
     parent = models.ForeignKey(
         "self", on_delete=models.CASCADE,
         null=True, blank=True, related_name="subcat"
@@ -22,7 +22,7 @@ class Category(models.Model):
         while k is not None:
             full_path.append(k.name)
             k = k.parent
-        return " -> ".join(full_path[::-1])
+        return " -> ".join(full_path)
 
 
 class Product(models.Model):
