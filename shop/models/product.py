@@ -3,6 +3,7 @@ from django.db import models
 from .choices import ProductSize, Colors, Status, DeliveryMethods, PaymentMethod
 from .user import Address
 from django.core.exceptions import ValidationError
+import uuid
 
 
 class Category(models.Model):
@@ -83,7 +84,7 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    product = models.ForeignKey(
+    product_item = models.ForeignKey(
         ProductItem, on_delete=models.SET_NULL, null=True,
         related_name="order_items")
     order = models.ForeignKey(
@@ -95,7 +96,7 @@ class OrderItem(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return str(self.id)
+        return f"{self.order.user.email}->{self.id}"
 
     def get_cost(self):
         return self.price * self.qty

@@ -7,7 +7,6 @@ from .models.product import (
     OrderItem,
 )
 from rest_framework import serializers
-from rest_framework.response import Response
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -21,7 +20,6 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        # fields = ['name', 'desc', 'product_image']
         fields = "__all__"
 
 
@@ -51,11 +49,11 @@ class UserPaymentSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    payment = UserPaymentSerializer()
+
     class Meta:
         model = Order
-        fields = "__all__"
-
-    payment = UserPaymentSerializer()
+        fields = '__all__'
 
     def create(slef, validated_data):
         payment_data = validated_data.pop("payment")
@@ -66,8 +64,22 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    order = OrderSerializer()
 
     class Meta:
         model = OrderItem
-        fields = "__all__"
+        fields = ['product_item', 'order', 'price', 'qty']
+
+    order = OrderSerializer()
+
+    def create(self, validated_data):
+        order = validated_data['order']
+        product = validated_data['product_item']
+        price = validated_data['price']
+        qty = validated_data['qty']
+        order_item = OrderItem.objects.create(
+            product_item=product,
+            order=OrderSerializer.create(OrderSerializer(), order),
+            price=price,
+            qty=qty
+        )
+        return order_item
