@@ -49,7 +49,7 @@ class UserPaymentSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    payment = UserPaymentSerializer()
+    payment = UserPaymentSerializer(many=True)
 
     class Meta:
         model = Order
@@ -69,7 +69,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = ['product_item', 'order', 'price', 'qty']
 
-    order = OrderSerializer()
+    order = OrderSerializer(many=True)
 
     def create(self, validated_data):
         order = validated_data['order']

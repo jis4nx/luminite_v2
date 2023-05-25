@@ -3,7 +3,6 @@ from django.db import models
 from .choices import ProductSize, Colors, Status, DeliveryMethods, PaymentMethod
 from .user import Address
 from django.core.exceptions import ValidationError
-import uuid
 
 
 class Category(models.Model):
