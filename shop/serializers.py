@@ -10,6 +10,10 @@ from rest_framework import serializers
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """
+    Serializer for Product Category
+    """
+
     category_name = serializers.CharField(source="name", allow_null=True)
 
     class Meta:
@@ -18,12 +22,18 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Product Object
+    """
     class Meta:
         model = Product
         fields = "__all__"
 
 
 class ProductItemSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Product Item Object
+    """
     class Meta:
         model = ProductItem
         fields = ["product", "product_size",
@@ -43,12 +53,18 @@ class ProductItemSerializer(serializers.ModelSerializer):
 
 
 class UserPaymentSerializer(serializers.ModelSerializer):
+    """
+    Serializes users payment data
+    """
     class Meta:
         model = UserPayment
         fields = "__all__"
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User Orders
+    """
     payment = UserPaymentSerializer(many=True)
 
     class Meta:
@@ -64,6 +80,9 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Order Items
+    """
 
     class Meta:
         model = OrderItem

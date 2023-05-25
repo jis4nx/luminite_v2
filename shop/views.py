@@ -8,19 +8,32 @@ from .serializers import (
     CategorySerializer,
     OrderItemSerializer
 )
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
 
 
 class Index(APIView):
+    """Api endpoints for accessing resources"""
+
     def get(self, request):
         navs = ["Products: /shop/products/"]
         return Response(navs)
 
 
 class CategoryView(generics.ListCreateAPIView):
+    """Get a list of categories or create a new category"""
+
     parser_classes = [parsers.FormParser, parsers.MultiPartParser]
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
+
+    @extend_schema(
+        summary="lists category or create one",
+        responses={200: CategorySerializer(many=True)}
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(self, request, *args, **kwargs)
 
 
 class ProductView(generics.ListCreateAPIView):
@@ -30,12 +43,30 @@ class ProductView(generics.ListCreateAPIView):
 
 
 class ProductItemView(generics.ListCreateAPIView):
+    """
+    Get a list of product items or create a new product item
+    """
     parser_classes = [parsers.FormParser, parsers.MultiPartParser]
     serializer_class = ProductItemSerializer
     queryset = ProductItem.objects.all()
 
+    @extend_schema(
+        summary="lists product items or create one",
+        responses={200: ProductItemSerializer(many=True)}
+    )
+    def get(self, request, *args, **kwargs):
+        super().get(self, request, *args, **kwargs)
 
-class OrderItemView(generics.ListCreateAPIView):
+
+class OrderItemView(ModelViewSet):
+    """Creates Order Items or get all the Order Items"""
     parser_classes = [parsers.FormParser, parsers.MultiPartParser]
     serializer_class = OrderItemSerializer
     queryset = OrderItem.objects.all()
+
+    # @extend_schema(
+    #     summary="lists user order items or create one",
+    #     responses={200: OrderItemSerializer(many=True)}
+    # )
+    def get(self, request, *args, **kwargs):
+        super().get(self, request, *args, **kwargs)

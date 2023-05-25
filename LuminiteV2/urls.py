@@ -4,7 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import (
     SpectacularAPIView,
-    SpectacularSwaggerView
+    SpectacularSwaggerView,
+    SpectacularRedocView
 )
 
 
@@ -14,7 +15,9 @@ urlpatterns = [
     path("shop/", include("shop.urls")),
     path("account/", include("accounts.urls")),
     path("api/docs", SpectacularSwaggerView.as_view(url_name="schema-view"),
-         name="api-docs")
+         name="api-docs"),
+    path('api/redoc/',
+         SpectacularRedocView.as_view(url_name='schema-view'), name='redoc')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
