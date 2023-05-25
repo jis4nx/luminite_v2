@@ -29,7 +29,7 @@ class CategoryView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
 
     @extend_schema(
-        summary="lists category or create one",
+        summary="Lists category or Create one",
         responses={200: CategorySerializer(many=True)}
     )
     def get(self, request, *args, **kwargs):
@@ -51,7 +51,7 @@ class ProductItemView(generics.ListCreateAPIView):
     queryset = ProductItem.objects.all()
 
     @extend_schema(
-        summary="lists product items or create one",
+        summary="Lists product items or Create one",
         responses={200: ProductItemSerializer(many=True)}
     )
     def get(self, request, *args, **kwargs):
@@ -64,8 +64,8 @@ class ProductItemView(generics.ListCreateAPIView):
         description="Return a list of users all Order Items",
     ),
     retrieve=extend_schema(
-        summary="Retrieve user",
-        description="Get details of a specific user",
+        summary="Retrieve Orders or Create one",
+        description="Get details of a specific Order or Create One",
     ),
 )
 class OrderItemView(ModelViewSet):
