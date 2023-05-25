@@ -4,9 +4,9 @@ from .models.product import (
     Category,
     ProductItem,
     Product,
-    ShopCart,
-    ShopCartItem,
-    UserPayment
+    Order,
+    OrderItem,
+    UserPayment,
 )
 from django.contrib.admin import ModelAdmin
 
@@ -26,7 +26,7 @@ admin.site.register(UserProfile)
 admin.site.register(Product)
 admin.site.register(Category)
 admin.site.register(ProductItem, ProductItemDisplay)
-admin.site.register(ShopCart)
-admin.site.register(ShopCartItem)
+admin.site.register(Order)
+admin.site.register(OrderItem)
 admin.site.register(UserPayment)
 admin.site.register(Address)

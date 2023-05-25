@@ -2,13 +2,13 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from .choices import ProductSize, Colors, Status, DeliveryMethods, PaymentMethod
 from .user import Address
+from django.core.exceptions import ValidationError
 
 
 class Category(models.Model):
     name = models.CharField(max_length=50, null=True)
     parent = models.ForeignKey(
-        "self", on_delete=models.CASCADE,
-        null=True, blank=True, related_name="subcat"
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="subcat"
     )
 
     class Meta:
@@ -59,29 +59,43 @@ class UserPayment(models.Model):
 # Product ORDER Models
 
 
-class ShopCart(models.Model):
+class Order(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     payment = models.ForeignKey(UserPayment, on_delete=models.CASCADE)
     delivery_address = models.ForeignKey(Address, on_delete=models.CASCADE)
     delivery_method = models.CharField(
-        max_length=20,
-        choices=DeliveryMethods.choices
-    )
-    order_total_price = models.FloatField()
+        max_length=20, choices=DeliveryMethods.choices)
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.PENDING
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ('-created_at',)
+
     def __str__(self):
         return self.user.email
 
+    def get_total_cost(self):
+        total_cost = sum(item.get_cost() for item in self.items.all())
+        return total_cost
 
-class ShopCartItem(models.Model):
-    cart = models.ForeignKey(ShopCart, on_delete=models.CASCADE)
+
+class OrderItem(models.Model):
     product = models.ForeignKey(
-        ProductItem, on_delete=models.SET_NULL, null=True)
+        ProductItem, on_delete=models.SET_NULL, null=True,
+        related_name="order_items")
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name='items')
+
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     qty = models.PositiveSmallIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_cost(self):
+        return self.price * self.qty

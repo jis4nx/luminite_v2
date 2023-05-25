@@ -4,6 +4,5 @@ from .models import User
 
 
 class RegisterUser(CreateAPIView):
-
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
