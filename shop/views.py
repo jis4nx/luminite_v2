@@ -10,7 +10,7 @@ from .serializers import (
 )
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 
 class Index(APIView):
@@ -58,15 +58,18 @@ class ProductItemView(generics.ListCreateAPIView):
         super().get(self, request, *args, **kwargs)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Lists all Order Items or create one",
+        description="Return a list of users all Order Items",
+    ),
+    retrieve=extend_schema(
+        summary="Retrieve user",
+        description="Get details of a specific user",
+    ),
+)
 class OrderItemView(ModelViewSet):
     """Creates Order Items or get all the Order Items"""
     parser_classes = [parsers.FormParser, parsers.MultiPartParser]
     serializer_class = OrderItemSerializer
     queryset = OrderItem.objects.all()
-
-    # @extend_schema(
-    #     summary="lists user order items or create one",
-    #     responses={200: OrderItemSerializer(many=True)}
-    # )
-    def get(self, request, *args, **kwargs):
-        super().get(self, request, *args, **kwargs)
