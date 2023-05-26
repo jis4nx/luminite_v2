@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from .choices import ProductSize, Colors, Status, DeliveryMethods, PaymentMethod
-from .user import Address
-from django.core.exceptions import ValidationError
+from .user import Address, UserProfile
 
 
 class Category(models.Model):
@@ -47,7 +46,7 @@ class ProductItem(models.Model):
 
 
 class UserPayment(models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     payment_type = models.CharField(
         max_length=20, choices=PaymentMethod.choices)
     account_no = models.CharField(max_length=255)
@@ -60,7 +59,7 @@ class UserPayment(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     payment = models.ForeignKey(UserPayment, on_delete=models.CASCADE)
     delivery_address = models.ForeignKey(Address, on_delete=models.CASCADE)
     delivery_method = models.CharField(

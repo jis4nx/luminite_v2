@@ -5,7 +5,6 @@ from django.dispatch import receiver
 
 
 class Address(models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     flat_no = models.CharField(max_length=255)
     street_no = models.CharField(max_length=255)
     address_line1 = models.CharField(max_length=255)
