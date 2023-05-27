@@ -41,6 +41,7 @@ Test for creating new Product Item
 
 
 @pytest.mark.django_db
+@pytest.fixture
 def test_product_item(new_product):
     payload = dict(
         product=new_product.id,
@@ -51,4 +52,6 @@ def test_product_item(new_product):
 
     )
     product = client.post(reverse('products'), payload)
+    product_item = product.data
     assert product.status_code == 201
+    return product_item

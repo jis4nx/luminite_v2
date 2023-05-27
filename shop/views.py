@@ -68,7 +68,7 @@ class ProductItemView(generics.ListCreateAPIView):
         description="Get details of a specific Order or Create One",
     ),
 )
-class OrderItemView(ModelViewSet):
+class OrderItemView(generics.ListCreateAPIView):
     """Creates Order Items or get all the Order Items"""
     parser_classes = [parsers.FormParser, parsers.MultiPartParser]
     serializer_class = OrderItemSerializer

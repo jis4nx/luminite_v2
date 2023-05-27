@@ -88,7 +88,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = ['product_item', 'order', 'price', 'qty']
 
-    order = OrderSerializer(many=True)
+    order = OrderSerializer()
 
     def create(self, validated_data):
         order = validated_data['order']
