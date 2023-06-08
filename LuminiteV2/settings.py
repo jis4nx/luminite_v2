@@ -70,7 +70,7 @@ WSGI_APPLICATION = "LuminiteV2.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "HOST": "db",
+        "HOST": "db3",
         "USER": "postgres",
         "PASSWORD": "postgres",
         "NAME": "postgres",

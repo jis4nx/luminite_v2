@@ -50,13 +50,6 @@ class ProductItemView(generics.ListCreateAPIView):
     serializer_class = ProductItemSerializer
     queryset = ProductItem.objects.all()
 
-    @extend_schema(
-        summary="Lists product items or Create one",
-        responses={200: ProductItemSerializer(many=True)}
-    )
-    def get(self, request, *args, **kwargs):
-        super().get(self, request, *args, **kwargs)
-
 
 @extend_schema_view(
     list=extend_schema(

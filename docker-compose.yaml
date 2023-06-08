@@ -1,5 +1,5 @@
 services:
-  web:
+  web3:
     container_name: web
     build:
       context: .
@@ -10,9 +10,9 @@ services:
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
     depends_on:
-      - db
+      - db3
 
-  db:
+  db3:
     container_name: pgdb
     image: postgres:13
     environment:
