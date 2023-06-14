@@ -30,3 +30,4 @@ psycopg2-binary==2.9.3
 drf-spectacular[sidecar]==0.26.2
 pytest-django==4.5.2
 pytest==7.3.1
+django-cors-headers==4.0.0

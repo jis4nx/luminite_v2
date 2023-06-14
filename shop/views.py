@@ -8,6 +8,7 @@ from .serializers import (
     CategorySerializer,
     OrderItemSerializer
 )
+from shop.models import choices
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, extend_schema_view
@@ -28,13 +29,6 @@ class CategoryView(generics.ListCreateAPIView):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
 
-    @extend_schema(
-        summary="Lists category or Create one",
-        responses={200: CategorySerializer(many=True)}
-    )
-    def get(self, request, *args, **kwargs):
-        return super().get(self, request, *args, **kwargs)
-
 
 class ProductView(generics.ListCreateAPIView):
     parser_classes = [parsers.FormParser, parsers.MultiPartParser]
@@ -46,9 +40,17 @@ class ProductItemView(generics.ListCreateAPIView):
     """
     Get a list of product items or create a new product item
     """
-    parser_classes = [parsers.FormParser, parsers.MultiPartParser]
+    parser_classes = [parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser]
     serializer_class = ProductItemSerializer
     queryset = ProductItem.objects.all()
+
+
+class ProductAttributeView(APIView):
+    def get(self, request):
+        return Response({
+            "colors": [color for color in choices.Colors],
+            "size": [size for size in choices.ProductSize]
+        })
 
 
 @extend_schema_view(

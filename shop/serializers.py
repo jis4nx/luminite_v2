@@ -6,6 +6,8 @@ from .models.product import (
     Order,
     OrderItem,
 )
+
+from shop.models import choices
 from rest_framework import serializers
 
 
@@ -14,11 +16,12 @@ class CategorySerializer(serializers.ModelSerializer):
     Serializer for Product Category
     """
 
-    category_name = serializers.CharField(source="name", allow_null=True)
+    # category_name = serializers.CharField(source="name", allow_null=True)
 
     class Meta:
         model = Category
-        fields = ["category_name", "parent"]
+        # fields = ["category_name", "parent"]
+        fields = "__all__"
 
 
 class ProductSerializer(serializers.ModelSerializer):

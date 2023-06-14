@@ -16,7 +16,7 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(_("Email address"), unique=True)
 
-    base_type = UserType.OTHER
+    # base_type = UserType.OTHER
 
     type = models.CharField(
         max_length=20, choices=UserType.choices)
@@ -24,10 +24,10 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.type = self.base_type
-            return super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if not self.pk:
+    #         self.type = self.base_type
+    #         return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.email

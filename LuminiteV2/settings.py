@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "drf_spectacular",
     "drf_spectacular_sidecar",
+    "corsheaders",
     # Local Apps
     "shop",
     "accounts",
@@ -39,6 +40,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -133,3 +136,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
+
+
+CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
