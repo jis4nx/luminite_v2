@@ -29,6 +29,7 @@ class Product(models.Model):
     desc = models.TextField()
     product_image = models.ImageField()
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
+    base_price = models.PositiveIntegerField()
 
     def __str__(self):
         return self.name
