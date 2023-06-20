@@ -1,9 +1,12 @@
+from django.http import JsonResponse
 from rest_framework.generics import CreateAPIView
+from rest_framework.response import Response
 from .serializers import RegisterSerializer
 from .models import User
 from LuminiteV2.settings import SIMPLE_JWT
 from rest_framework_simplejwt.views import TokenObtainPairView
 from datetime import datetime
+from rest_framework.views import APIView
 
 
 """Custom TokeObtainPairView"""
@@ -25,3 +28,10 @@ class CustomTokenPairView(TokenObtainPairView):
 class RegisterUser(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
+
+
+class LogoutView(APIView):
+    def get(self, request):
+        res = Response("Logging Out")
+        res.delete_cookie('access')
+        return res
