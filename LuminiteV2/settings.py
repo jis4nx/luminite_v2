@@ -1,8 +1,9 @@
+from corsheaders.defaults import default_headers
 from pathlib import Path
 import os
 from datetime import timedelta
 
-from django.conf.global_settings import MEDIA_URL
+from django.conf.global_settings import CSRF_COOKIE_SECURE, MEDIA_URL, SESSION_COOKIE_SECURE
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "drf_spectacular_sidecar",
     "corsheaders",
+    "sslserver",
     # Local Apps
     "shop",
     "accounts",
@@ -144,5 +146,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
 
-
+CORS_ORIGIN_WHITELIST = [
+    'http://127.0.0.1:3000',
+]
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]

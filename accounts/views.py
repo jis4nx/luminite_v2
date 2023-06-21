@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.middleware.csrf import CSRF_SESSION_KEY
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from .serializers import RegisterSerializer
@@ -20,6 +21,7 @@ class CustomTokenPairView(TokenObtainPairView):
             key="access",
             value=token,
             httponly=True,
+            samesite='None',
             expires=datetime.now() + SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']
         )
         return res
