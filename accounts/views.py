@@ -7,6 +7,7 @@ from .models import User
 from LuminiteV2.settings import SIMPLE_JWT
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework import status
 from datetime import datetime
 from rest_framework.views import APIView
@@ -50,4 +51,19 @@ class LogoutView(APIView):
 
 
 class VerifyToken(APIView):
-    pass
+    def get(self, request):
+        token = request.COOKIES.get("refresh")
+        if not token:
+            return Response({'error': 'Refresh token is missing!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        try:
+            token = RefreshToken(token).verify()
+        except InvalidToken:
+            return Response({'error': 'invalid refresh token'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            return Response({'error': 'Something went wrong!'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'success': 'refresh token is valid'},
+                        status=status.HTTP_200_OK)
