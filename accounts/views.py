@@ -26,12 +26,14 @@ class CustomTokenPairView(TokenObtainPairView):
             value=token_access,
             httponly=True,
             samesite='None',
+            secure=True,
             expires=datetime.now() + SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']
         )
         res.set_cookie(
             key="refresh",
             value=token_refresh,
             httponly=True,
+            secure=True,
             samesite='None',
             expires=datetime.now() + SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
         )
