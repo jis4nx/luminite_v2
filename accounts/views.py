@@ -1,16 +1,18 @@
 from django.http import JsonResponse
 from django.middleware.csrf import CSRF_SESSION_KEY
+from django.views import generic
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, UserProfileSerializer
 from .models import User
 from LuminiteV2.settings import SIMPLE_JWT
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework import status
 from datetime import datetime
 from rest_framework.views import APIView
+from shop.models.user import UserProfile
 
 
 """Custom TokeObtainPairView"""
@@ -69,3 +71,14 @@ class VerifyToken(APIView):
 
         return Response({'success': 'refresh token is valid'},
                         status=status.HTTP_200_OK)
+
+
+class ProfileView(APIView):
+    def get(self, request):
+        if not self.request.user.is_anonymous:
+            profile = UserProfile.objects.get(user=self.request.user)
+            serializer = UserProfileSerializer(
+                profile, context={'request': request})
+            return Response(serializer.data)
+        return Response({'error': 'user is not authenticated!'},
+                        status=status.HTTP_401_UNAUTHORIZED)

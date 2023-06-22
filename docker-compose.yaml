@@ -10,6 +10,8 @@ services:
       - .:/app
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
+    environment:
+      HOST_TYPE: DEV
     depends_on:
       - db3
 
