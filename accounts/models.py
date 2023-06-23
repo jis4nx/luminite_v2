@@ -19,7 +19,7 @@ class User(AbstractUser):
     # base_type = UserType.OTHER
 
     type = models.CharField(
-        max_length=20, choices=UserType.choices)
+        max_length=20, choices=UserType.choices, default=UserType.OTHER)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

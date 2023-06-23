@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import os
+
+from LuminiteV2.settings import BASE_DIR
 
 
 class Address(models.Model):
@@ -23,7 +26,8 @@ class UserProfile(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
 
     address = models.ForeignKey(Address, null=True, on_delete=models.SET_NULL)
-    image = models.ImageField(default="../static/images/default.jpg")
+    image = models.ImageField(upload_to='profile_pic',
+                              default='static/profile.png')
 
     def __str__(self):
         return self.user.email
