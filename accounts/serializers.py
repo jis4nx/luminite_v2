@@ -1,7 +1,7 @@
 from django.http.response import json
 from rest_framework import serializers
 
-from shop.models.user import UserProfile
+from shop.models.user import Address, UserProfile
 from .models import User
 
 
@@ -32,10 +32,24 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = '__all__'
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
+    address = serializers.SerializerMethodField()
+
+    def get_address(self, obj):
+        address = Address.objects.filter(
+            user_profile=obj, default=True).first()
+        serializer = AddressSerializer(address)
+        return serializer.data
+
     class Meta:
         model = UserProfile
-        fields = "__all__"
+        fields = ['user', 'image', 'address']
 
     def to_representation(self, instance):
         user = self.context['request'].user

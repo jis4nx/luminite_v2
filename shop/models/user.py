@@ -23,6 +23,7 @@ class Address(models.Model):
     address_line2 = models.CharField(max_length=255, blank=True)
     city = models.CharField(max_length=30)
     postal_code = models.CharField(max_length=30)
+    default = models.BooleanField(default=False)
     user_profile = models.ForeignKey(
         UserProfile, on_delete=models.CASCADE, related_name='addresses')
 

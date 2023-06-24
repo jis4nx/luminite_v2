@@ -1,9 +1,9 @@
 from django.http import JsonResponse
 from django.middleware.csrf import CSRF_SESSION_KEY
 from django.views import generic
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, mixins
 from rest_framework.response import Response
-from .serializers import RegisterSerializer, UserProfileSerializer
+from .serializers import AddressSerializer, RegisterSerializer, UserProfileSerializer
 from .models import User
 from LuminiteV2.settings import SIMPLE_JWT
 from rest_framework_simplejwt.views import TokenObtainPairView, generics
@@ -12,7 +12,7 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework import status
 from datetime import datetime
 from rest_framework.views import APIView
-from shop.models.user import UserProfile
+from shop.models.user import Address, UserProfile
 
 
 """Custom TokeObtainPairView"""
@@ -51,6 +51,7 @@ class LogoutView(APIView):
     def get(self, request):
         res = Response("Logging Out")
         res.delete_cookie('access')
+        res.delete_cookie('refresh')
         return res
 
 
@@ -82,3 +83,14 @@ class ProfileView(APIView):
             return Response(serializer.data)
         return Response({'error': 'user is not authenticated!'},
                         status=status.HTTP_401_UNAUTHORIZED)
+
+
+class AddressView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    serializer_class = AddressSerializer
+    queryset = Address.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)

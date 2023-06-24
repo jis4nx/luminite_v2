@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, parsers
+
 from .models.product import Product, ProductItem, Category, OrderItem
 from .serializers import (
     ProductItemSerializer,
@@ -9,7 +10,6 @@ from .serializers import (
     OrderItemSerializer
 )
 from shop.models import choices
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
@@ -40,7 +40,8 @@ class ProductItemView(generics.ListCreateAPIView):
     """
     Get a list of product items or create a new product item
     """
-    parser_classes = [parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser]
+    parser_classes = [parsers.FormParser,
+                      parsers.MultiPartParser, parsers.JSONParser]
     serializer_class = ProductItemSerializer
     queryset = ProductItem.objects.all()
 
