@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from .serializers import AddressSerializer, RegisterSerializer, UserProfileSerializer
 from .models import User
 from LuminiteV2.settings import SIMPLE_JWT
-from rest_framework_simplejwt.views import TokenObtainPairView, generics
+from rest_framework_simplejwt.views import TokenObtainPairView, generics, TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework import status
@@ -85,6 +85,30 @@ class TokenExpiration(APIView):
         if token_refresh:
             resp['refresh'] = True
         return Response(resp)
+
+
+class CustomRefreshTokenView(APIView):
+    def get(self, request):
+        token_refresh = request.COOKIES.get('refresh')
+        if token_refresh:
+            try:
+                token = RefreshToken(token_refresh)
+                token_access = token.access_token
+                res = Response({'access': str(token_access)})
+                res.set_cookie(
+                    key="access",
+                    value=token_access,
+                    httponly=True,
+                    secure=False,
+                    samesite='None',
+                    expires=datetime.now() +
+                    SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']
+                )
+                return res
+            except InvalidToken:
+                return Response({'error': 'Invalid Refresh Token'})
+        return Response({'error': 'Refresh Token missing!'},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
 
 class ProfileView(APIView):
