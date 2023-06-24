@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.http.response import json
 from django.middleware.csrf import CSRF_SESSION_KEY
 from django.views import generic
 from rest_framework.generics import CreateAPIView, mixins
@@ -72,6 +73,18 @@ class VerifyToken(APIView):
 
         return Response({'success': 'refresh token is valid'},
                         status=status.HTTP_200_OK)
+
+
+class TokenExpiration(APIView):
+    def get(self, request):
+        resp = {"access": False, "refresh": False}
+        token_access = request.COOKIES.get('access')
+        token_refresh = request.COOKIES.get('refresh')
+        if token_access:
+            resp['access'] = True
+        if token_refresh:
+            resp['refresh'] = True
+        return Response(resp)
 
 
 class ProfileView(APIView):
