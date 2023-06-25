@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
@@ -26,6 +27,13 @@ class Address(models.Model):
     default = models.BooleanField(default=False)
     user_profile = models.ForeignKey(
         UserProfile, on_delete=models.CASCADE, related_name='addresses')
+
+    def save(self, *args, **kwargs):
+        user_addresses = self.user_profile.addresses.count()
+        if user_addresses > 5:
+            raise ValidationError(
+                "Maximum address limit reached for this user.")
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return " ".join((self.flat_no, self.street_no, self.address_line1))

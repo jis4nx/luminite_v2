@@ -37,6 +37,14 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = '__all__'
 
+    def validate(self, attrs):
+        user_profile = attrs['user_profile']
+        user_addresses = user_profile.addresses.count()
+        if user_addresses > 5:
+            raise serializers.ValidationError(
+                "Maximum address limit reached for this user.")
+        return attrs
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     address = serializers.SerializerMethodField()

@@ -1,16 +1,13 @@
-from django.http import JsonResponse
-from django.http.response import json
-from django.middleware.csrf import CSRF_SESSION_KEY
 from django.views import generic
 from rest_framework.generics import CreateAPIView, mixins
 from rest_framework.response import Response
 from .serializers import AddressSerializer, RegisterSerializer, UserProfileSerializer
 from .models import User
 from LuminiteV2.settings import SIMPLE_JWT
-from rest_framework_simplejwt.views import TokenObtainPairView, generics, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView, generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-from rest_framework import status
+from rest_framework import serializers, status
 from datetime import datetime
 from rest_framework.views import APIView
 from shop.models.user import Address, UserProfile
@@ -122,7 +119,9 @@ class ProfileView(APIView):
                         status=status.HTTP_401_UNAUTHORIZED)
 
 
-class AddressView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class AddressView(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  generics.GenericAPIView):
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
 
@@ -131,3 +130,9 @@ class AddressView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gener
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+    def handle_exception(self, exc):
+        if isinstance(exc, serializers.ValidationError):
+            return Response({'error': 'Maximum address limit reached for this user'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return super().handle_exception(exc)
