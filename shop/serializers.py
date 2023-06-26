@@ -16,18 +16,24 @@ class CategorySerializer(serializers.ModelSerializer):
     Serializer for Product Category
     """
 
-    # category_name = serializers.CharField(source="name", allow_null=True)
+    parent = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
-        # fields = ["category_name", "parent"]
-        fields = "__all__"
+        fields = ('name', 'parent')
+
+    def get_parent(self, obj):
+        if obj.parent:
+            return obj.parent.name
+        return None
 
 
 class ProductSerializer(serializers.ModelSerializer):
     """
     Serializer for Product Object
     """
+    category = CategorySerializer(read_only=True)
+
     class Meta:
         model = Product
         fields = "__all__"
