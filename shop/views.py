@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, parsers
+from rest_framework import viewsets
 
 from .models.product import Product, ProductItem, Category, OrderItem
 from .serializers import (
@@ -30,10 +31,10 @@ class CategoryView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
 
 
-class ProductView(generics.ListCreateAPIView):
+class ProductView(viewsets.ModelViewSet):
     parser_classes = [parsers.FormParser, parsers.MultiPartParser]
-    serializer_class = ProductSerializer
     queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
 
 class ProductItemView(generics.ListCreateAPIView):
