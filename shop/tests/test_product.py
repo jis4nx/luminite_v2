@@ -22,10 +22,11 @@ class ProductTest(TestUserAccount):
         product = Product(
             name="Hoodie",
             desc="UngaBunga Hoodie",
+            base_price=float(69.420)
         )
         product.product_image = SimpleUploadedFile(
             name='default.jpg', content=open(
-                "static/images/default.jpg", 'rb').read(),
+                "media/static/profile.png", 'rb').read(),
             content_type='image/jpeg')
         product.category = self.cat[0]
         product.save()

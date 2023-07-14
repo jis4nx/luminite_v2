@@ -17,5 +17,6 @@ def new_product(new_cat):
         desc="400% Unga Bunga Hoodie",
         product_image="static/image/default.jpg",
         category=new_cat,
+        base_price=float(69.420)
     )
     return product

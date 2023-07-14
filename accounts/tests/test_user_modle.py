@@ -27,7 +27,8 @@ class TestUserAccount(APITestCase):
             street_no="one way",
             address_line1="420/69 one way",
             city="uganda",
-            postal_code="69420H"
+            postal_code="69420H",
+            user_profile=self.user_profile.first()
         )
         return super().setUp()
 
@@ -35,6 +36,7 @@ class TestUserAccount(APITestCase):
         return super().tearDown()
 
     def test_user_register_with_url(self):
+        print(self.res.status_code)
         self.assertEqual(self.res.status_code, 201)
 
     def test_user_type(self):
@@ -49,9 +51,8 @@ class TestUserAccount(APITestCase):
         self.assertEqual(self.user_profile.count(), 1)
         self.assertEqual(profile.user.email,
                          "test@gmail.com")
-        self.assertEqual(profile.address, None)
-        profile.address = self.address
+        self.assertEqual(profile.addresses.count(), 1)
         profile.save()
 
         """Check for address assignment to User Profile"""
-        self.assertEqual(str(profile.address), str(self.address))
+        self.assertEqual(str(profile.addresses.first()), str(self.address))

@@ -18,10 +18,10 @@ def test_lists_product_category():
 
 @pytest.mark.django_db
 def test_create_category():
-    payload = dict(category_name="electronics")
+    payload = dict(name="electronics")
     cat = client.post(reverse('category'), payload)
     assert cat.status_code == 201
-    assert cat.data['category_name'] == payload['category_name']
+    assert cat.data['name'] == payload['name']
 
 
 """
@@ -31,7 +31,7 @@ Test For listing all product instances
 
 @pytest.mark.django_db
 def test_list_product(new_product):
-    product = client.get(reverse('product'))
+    product = client.get(reverse('product-list'))
     assert product.status_code == 200
 
 
