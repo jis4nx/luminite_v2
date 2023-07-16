@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, parsers
@@ -45,6 +46,24 @@ class ProductItemView(generics.ListCreateAPIView):
                       parsers.MultiPartParser, parsers.JSONParser]
     serializer_class = ProductItemSerializer
     queryset = ProductItem.objects.all()
+
+
+class ShopItemView(APIView):
+    def get(self, request):
+        products = Product.objects.all()
+
+        data = []
+        for product in products:
+            item = product.product_items.first()
+            product_serializer = ProductSerializer(product)
+            item_serializer = ProductItemSerializer(
+                item, context={'request': request})
+            data.append({
+                'product': product_serializer.data,
+                'item': item_serializer.data
+            })
+
+        return JsonResponse(data, safe=False)
 
 
 class ProductAttributeView(APIView):

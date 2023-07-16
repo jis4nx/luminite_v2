@@ -27,7 +27,6 @@ class Category(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=255)
     desc = models.TextField()
-    product_image = models.ImageField()
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     base_price = models.PositiveIntegerField()
 
@@ -36,10 +35,12 @@ class Product(models.Model):
 
 
 class ProductItem(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="product_items")
     product_size = models.CharField(max_length=20, choices=ProductSize.choices)
     product_color = models.CharField(max_length=20, choices=Colors.choices)
     qty_in_stock = models.PositiveIntegerField()
+    image = models.ImageField(default="static/no_image.jpg")
     price = models.FloatField()
 
     def __str__(self):

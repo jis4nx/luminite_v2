@@ -45,8 +45,7 @@ class ProductItemSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = ProductItem
-        fields = ["product", "product_size",
-                  "product_color", "qty_in_stock", "price"]
+        fields = "__all__"
 
     def create(self, validated_data):
         product = self.validated_data['product']
