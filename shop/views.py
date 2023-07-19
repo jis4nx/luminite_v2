@@ -38,7 +38,7 @@ class ProductView(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
 
 
-class ProductItemView(generics.ListCreateAPIView):
+class ProductItemView(generics.RetrieveAPIView):
     """
     Get a list of product items or create a new product item
     """
@@ -46,6 +46,11 @@ class ProductItemView(generics.ListCreateAPIView):
                       parsers.MultiPartParser, parsers.JSONParser]
     serializer_class = ProductItemSerializer
     queryset = ProductItem.objects.all()
+
+
+class ProductRetrieveView(generics.RetrieveAPIView):
+    queryset = ProductItem.objects.all()
+    serializer_class = ProductItemSerializer
 
 
 class ShopItemView(APIView):
