@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from rest_framework.views import APIView
+from rest_framework.views import APIView, status
 from rest_framework.response import Response
 from rest_framework import generics, parsers
 from rest_framework import viewsets
@@ -38,19 +38,24 @@ class ProductView(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
 
 
-class ProductItemView(generics.RetrieveAPIView):
+class ProductRetrieveView(APIView):
     """
-    Get a list of product items or create a new product item
+    Get a list of product items of Product Object
     """
-    parser_classes = [parsers.FormParser,
-                      parsers.MultiPartParser, parsers.JSONParser]
-    serializer_class = ProductItemSerializer
-    queryset = ProductItem.objects.all()
 
-
-class ProductRetrieveView(generics.RetrieveAPIView):
-    queryset = ProductItem.objects.all()
-    serializer_class = ProductItemSerializer
+    def get(self, request, pk):
+        product = Product.objects.get(pk=pk)
+        if not product:
+            return Response(
+                {'error': 'Product not found!'},
+                status=status.HTTP_404_NOT_FOUND)
+        product_serializer = ProductSerializer(product)
+        items = product.product_items.all()
+        item_serializer = ProductItemSerializer(
+            items, many=True, context={'request': request})
+        data = {'product': product_serializer.data,
+                'items': item_serializer.data}
+        return Response(data)
 
 
 class ShopItemView(APIView):

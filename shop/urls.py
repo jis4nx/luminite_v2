@@ -9,7 +9,7 @@ urlpatterns = [
     path("", views.Index.as_view()),
     path("", include(router.urls)),
     path("category/", views.CategoryView.as_view(), name="category"),
-    path("product/<int:pk>", views.ProductItemView.as_view(), name="products"),
+    path("product/<int:pk>", views.ProductRetrieveView.as_view(), name="product"),
     path("product-attr/", views.ProductAttributeView.as_view(), name="product-attr"),
     path("order/", views.OrderItemView.as_view(), name="order"),
     path("items/", views.ShopItemView.as_view(), name="items"),
