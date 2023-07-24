@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.template import context
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
 from rest_framework import generics, parsers
@@ -74,6 +75,21 @@ class ShopItemView(APIView):
             })
 
         return JsonResponse(data, safe=False)
+
+
+class ShopItemRetrieveView(APIView):
+    def get(self, request, pk):
+        product_item = generics.get_object_or_404(ProductItem, pk=pk)
+        product = product_item.product
+        items = product.product_items.select_related('product').all()
+        items_serializer = ProductItemSerializer(
+            items, many=True, context={'request': request})
+        item_serializer = ProductItemSerializer(
+            product_item, context={'request': request})
+        product_serializer = ProductSerializer(product)
+        data = {'product': product_serializer.data,
+                'items': items_serializer.data, "item": item_serializer.data}
+        return Response(data)
 
 
 class ProductAttributeView(APIView):

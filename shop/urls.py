@@ -10,6 +10,7 @@ urlpatterns = [
     path("", include(router.urls)),
     path("category/", views.CategoryView.as_view(), name="category"),
     path("product/<int:pk>", views.ProductRetrieveView.as_view(), name="product"),
+    path("item/<int:pk>", views.ShopItemRetrieveView.as_view(), name="items"),
     path("product-attr/", views.ProductAttributeView.as_view(), name="product-attr"),
     path("order/", views.OrderItemView.as_view(), name="order"),
     path("items/", views.ShopItemView.as_view(), name="items"),
