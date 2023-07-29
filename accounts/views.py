@@ -11,6 +11,8 @@ from rest_framework import serializers, status
 from datetime import datetime
 from rest_framework.views import APIView
 from shop.models.user import Address, UserProfile
+from django_filters import rest_framework as filters
+from rest_framework.permissions import IsAuthenticated
 
 
 """Custom TokeObtainPairView"""
@@ -123,7 +125,11 @@ class AddressView(mixins.ListModelMixin,
                   mixins.CreateModelMixin,
                   generics.GenericAPIView):
     serializer_class = AddressSerializer
-    queryset = Address.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        profile = UserProfile.objects.get(user=self.request.user)
+        return Address.objects.filter(user_profile=profile)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

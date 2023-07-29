@@ -73,7 +73,7 @@ class OrderSerializer(serializers.ModelSerializer):
     """
     Serializer for User Orders
     """
-    payment = UserPaymentSerializer(many=True)
+    payment = UserPaymentSerializer()
 
     class Meta:
         model = Order
