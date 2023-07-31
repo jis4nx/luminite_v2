@@ -113,7 +113,7 @@ class CustomRefreshTokenView(APIView):
 class ProfileView(APIView):
     def get(self, request):
         if not self.request.user.is_anonymous:
-            profile = UserProfile.objects.get(user=self.request.user)
+            profile = self.request.user.userprofile
             serializer = UserProfileSerializer(
                 profile, context={'request': request})
             return Response(serializer.data)
@@ -126,10 +126,10 @@ class AddressView(mixins.ListModelMixin,
                   generics.GenericAPIView):
     serializer_class = AddressSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [filters.DjangoFilterBackend]
 
     def get_queryset(self):
-        profile = UserProfile.objects.get(user=self.request.user)
-        return Address.objects.filter(user_profile=profile)
+        return Address.objects.filter(user_profile=self.request.user.userprofile)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

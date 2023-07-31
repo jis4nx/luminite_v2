@@ -112,6 +112,6 @@ class ProductAttributeView(APIView):
 )
 class OrderItemView(generics.ListCreateAPIView):
     """Creates Order Items or get all the Order Items"""
-    parser_classes = [parsers.FormParser, parsers.MultiPartParser]
+    parser_classes = [parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser]
     serializer_class = OrderItemSerializer
     queryset = OrderItem.objects.all()
