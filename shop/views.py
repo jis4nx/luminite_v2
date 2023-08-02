@@ -1,19 +1,20 @@
+from django.db.models import Prefetch
 from django.http import JsonResponse
-from django.template import context
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
 from rest_framework import generics, parsers
 from rest_framework import viewsets
+from shop.models.user import UserProfile
 
-from .models.product import Product, ProductItem, Category, OrderItem
+from .models.product import Product, ProductItem, Category, OrderItem, Order
 from .serializers import (
     ProductItemSerializer,
     ProductSerializer,
     CategorySerializer,
-    OrderItemSerializer
+    OrderItemSerializer,
+    OrderSerializer,
 )
 from shop.models import choices
-from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
 
@@ -48,14 +49,15 @@ class ProductRetrieveView(APIView):
         product = Product.objects.get(pk=pk)
         if not product:
             return Response(
-                {'error': 'Product not found!'},
-                status=status.HTTP_404_NOT_FOUND)
+                {"error": "Product not found!"}, status=status.HTTP_404_NOT_FOUND
+            )
         product_serializer = ProductSerializer(product)
         items = product.product_items.all()
         item_serializer = ProductItemSerializer(
-            items, many=True, context={'request': request})
-        data = {'product': product_serializer.data,
-                'items': item_serializer.data}
+            items, many=True, context={"request": request}
+        )
+        data = {"product": product_serializer.data,
+                "items": item_serializer.data}
         return Response(data)
 
 
@@ -68,11 +70,10 @@ class ShopItemView(APIView):
             item = product.product_items.first()
             product_serializer = ProductSerializer(product)
             item_serializer = ProductItemSerializer(
-                item, context={'request': request})
-            data.append({
-                'product': product_serializer.data,
-                'item': item_serializer.data
-            })
+                item, context={"request": request})
+            data.append(
+                {"product": product_serializer.data, "item": item_serializer.data}
+            )
 
         return JsonResponse(data, safe=False)
 
@@ -81,23 +82,30 @@ class ShopItemRetrieveView(APIView):
     def get(self, request, pk):
         product_item = generics.get_object_or_404(ProductItem, pk=pk)
         product = product_item.product
-        items = product.product_items.select_related('product').all()
+        items = product.product_items.select_related("product").all()
         items_serializer = ProductItemSerializer(
-            items, many=True, context={'request': request})
+            items, many=True, context={"request": request}
+        )
         item_serializer = ProductItemSerializer(
-            product_item, context={'request': request})
+            product_item, context={"request": request}
+        )
         product_serializer = ProductSerializer(product)
-        data = {'product': product_serializer.data,
-                'items': items_serializer.data, "item": item_serializer.data}
+        data = {
+            "product": product_serializer.data,
+            "items": items_serializer.data,
+            "item": item_serializer.data,
+        }
         return Response(data)
 
 
 class ProductAttributeView(APIView):
     def get(self, request):
-        return Response({
-            "colors": [color for color in choices.Colors],
-            "size": [size for size in choices.ProductSize]
-        })
+        return Response(
+            {
+                "colors": [color for color in choices.Colors],
+                "size": [size for size in choices.ProductSize],
+            }
+        )
 
 
 @extend_schema_view(
@@ -112,6 +120,57 @@ class ProductAttributeView(APIView):
 )
 class OrderItemView(generics.ListCreateAPIView):
     """Creates Order Items or get all the Order Items"""
-    parser_classes = [parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser]
+
+    parser_classes = [parsers.FormParser,
+                      parsers.MultiPartParser, parsers.JSONParser]
     serializer_class = OrderItemSerializer
     queryset = OrderItem.objects.all()
+
+
+class GetUserOrders(APIView):
+    def get(self, request):
+        user = request.user.userprofile
+
+        user_orders = user.order_set.prefetch_related(
+            Prefetch('items', queryset=OrderItem.objects.select_related(
+                'product_item__product'))
+        )
+
+        order_data = [
+            {
+                "order": order.id,
+                "products": [{
+                    "id": item.product_item.id,
+                    "name": item.product_item.product.name,
+                    "image": item.product_item.image.url,
+                    "price": item.price,
+                    "qty": item.qty
+                }for item in order.items.all()]
+            }
+            for order in user_orders
+        ]
+
+        return Response(order_data)
+
+
+class OrderItemCreateView(generics.CreateAPIView):
+    serializer_class = OrderItemSerializer
+    queryset = OrderItem.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        items_data = request.data.pop("items")
+        order_data = request.data.get("order")
+        order = OrderSerializer(data=order_data)
+
+        if order.is_valid():
+            order_instance = order.save()
+            order_item_data = [
+                dict(item, order=order_instance.id) for item in items_data
+            ]
+            order_item_serializer = self.get_serializer(
+                data=order_item_data, many=True)
+            if order_item_serializer.is_valid():
+                order_item_serializer.save()
+                return Response({"msg": "success"}, status=status.HTTP_201_CREATED)
+
+        return Response(order.errors, status=status.HTTP_400_BAD_REQUEST)

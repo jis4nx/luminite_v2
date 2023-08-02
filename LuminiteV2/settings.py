@@ -1,3 +1,4 @@
+import socket
 from corsheaders.defaults import default_headers
 from pathlib import Path
 import os
@@ -36,6 +37,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "sslserver",
     "django_filters",
+    "debug_toolbar",
     # Local Apps
     "shop",
     "accounts",
@@ -51,6 +53,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "LuminiteV2.urls"
@@ -152,3 +155,8 @@ CORS_ORIGIN_WHITELIST = [
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
+
+
+INTERNAL_IPS = ['127.0.0.1']
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS += [".".join(ip.split(".")[:-1] + ["1"]) for ip in ips]

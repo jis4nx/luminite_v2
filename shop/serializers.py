@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from .models.product import (
     Product,
     ProductItem,
@@ -94,19 +95,4 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ['product_item', 'order', 'price', 'qty']
-
-    order = OrderSerializer()
-
-    def create(self, validated_data):
-        order = validated_data['order']
-        product = validated_data['product_item']
-        price = validated_data['price']
-        qty = validated_data['qty']
-        order_item = OrderItem.objects.create(
-            product_item=product,
-            order=OrderSerializer.create(OrderSerializer(), order),
-            price=price,
-            qty=qty
-        )
-        return order_item
+        fields = "__all__"

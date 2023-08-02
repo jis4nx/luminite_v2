@@ -76,11 +76,19 @@ class Order(models.Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        return self.user
+        return f"Order #{self.id}"
 
     def get_total_cost(self):
         total_cost = sum(item.get_cost() for item in self.items.all())
         return total_cost
+
+    @property
+    def get_user_product_items(self):
+        product_items = []
+        for order_item in self.items.prefetch_related('product_item'):
+            if order_item.product_item:
+                product_items.append(order_item.product_item)
+        return product_items
 
 
 class OrderItem(models.Model):
