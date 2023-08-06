@@ -4,7 +4,6 @@ from rest_framework.views import APIView, status
 from rest_framework.response import Response
 from rest_framework import generics, parsers
 from rest_framework import viewsets
-from shop.models.user import UserProfile
 
 from .models.product import Product, ProductItem, Category, OrderItem, Order
 from .serializers import (
@@ -13,6 +12,7 @@ from .serializers import (
     CategorySerializer,
     OrderItemSerializer,
     OrderSerializer,
+    UserPaymentSerializer
 )
 from shop.models import choices
 from drf_spectacular.utils import extend_schema, extend_schema_view
@@ -131,14 +131,22 @@ class GetUserOrders(APIView):
     def get(self, request):
         user = request.user.userprofile
 
-        user_orders = user.order_set.prefetch_related(
+        user_orders = user.order_set.select_related('payment', 'delivery_address').prefetch_related(
             Prefetch('items', queryset=OrderItem.objects.select_related(
                 'product_item__product'))
         )
 
         order_data = [
             {
-                "order": order.id,
+                "order": {
+                    'id': order.id,
+                    'deliveryAddress': str(order.delivery_address),
+                    'deliveryMethod': order.delivery_method,
+                    'orderDate': order.created_at,
+                    'status': order.status,
+                    'totalPrice': order.get_total_cost(),
+                    'payment': UserPaymentSerializer(order.payment).data
+                },
                 "products": [{
                     "id": item.product_item.id,
                     "name": item.product_item.product.name,
