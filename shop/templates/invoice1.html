@@ -1,0 +1,143 @@
+<html>
+  <head>
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700);
+      html {
+        font-family: "Open Sans";
+      }
+      @page {
+        size: "A4";
+        margin: 2.5cm 1.5cm 3.5cm 1.5cm;
+
+        @top-center {
+          content: "LUMINITE V2";
+          color: #3730a3;
+          font-family: "Open Sans";
+          font-weight: 500;
+          font-size: 1.5rem;
+        }
+      }
+      .head p {
+        font-size: 0.8rem;
+      }
+      .head1 {
+        display: flex;
+        justify-content: space-between;
+      }
+      .invoice-table {
+        margin-top: 3rem;
+        width: 100%;
+        font-family: "Open Sans";
+        border-spacing: 0 15px;
+      }
+      .invoice-table thead tr {
+        font-style: normal;
+        font-size: 1rem;
+        border-bottom: 1px solid gray;
+      }
+
+      .invoice-table tbody tr {
+        font-size: 0.8rem;
+      }
+      .invoice-footer {
+        text-align: right;
+        margin-right: 150px;
+        font-weight: 700;
+      }
+      .billing {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 3rem;
+      }
+      .legend {
+        text-transform: uppercase;
+        font-size: 1rem;
+        color: #54626f;
+      }
+      .billing p {
+        font-size: 0.8rem;
+      }
+      .msg {
+        margin-top: 2rem;
+      }
+      .head__legend {
+        color: #3730a3;
+        font-size: 1.05rem;
+      }
+    </style>
+  </head>
+  <body>
+    <section>
+      <div class="head1">
+        <div>
+          <p class="head__legend">Invoice</p>
+          <div class="head">
+            <p style="color: red">ORDER ID #{{order.id}}</p>
+            <p>Date: {{ order.orderDate|date:'Y-m-d H:i' }}</p>
+          </div>
+        </div>
+        <div class="head">
+          <div class="head__legend">Contact</div>
+          <p>Email: support@luminite.org</p>
+          <p>Phone: +8893243434</p>
+          <p>Telphone: 02343582</p>
+        </div>
+      </div>
+      <div class="fulltable">
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <td>Item</td>
+              <td>Quantity</td>
+              <td>Price</td>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products%}
+            <tr>
+              <td>{{product.name}}</td>
+              <td>{{product.qty}}</td>
+              <td>{{product.price}} /-</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="invoice-footer">
+          <p style="font-size: 0.8rem">Total Amount: {{order.totalPrice}} /-</p>
+        </div>
+      </div>
+      <div class="billing">
+        <div>
+          <div class="legend">Billing Information</div>
+          <p>Philip Brooks</p>
+          <p>Public Wales, Somewhere</p>
+          <p>New York NY</p>
+          <p>Email: {{order.user}}</p>
+        </div>
+        <div>
+          <div class="legend">Payment Method</div>
+          <p>Credit Card</p>
+          <p style="font-weight: 700">Transaction ID: 4185939336</p>
+        </div>
+      </div>
+      <div class="billing">
+        <div>
+          <div class="legend">shipping Address</div>
+          <p>{{order.deliveryAddress.address_line1}}</p>
+          <p>{{order.deliveryAddress.street_no}}</p>
+          <p>
+            {{order.deliveryAddress.city}},
+            {{order.deliveryAddress.postal_code}}
+          </p>
+        </div>
+        <div>
+          <div class="legend">shipping method</div>
+          <p>{{order.deliveryMethod}}</p>
+        </div>
+      </div>
+      <div class="msg">
+        <h5>Thanks for shopping with us</h5>
+      </div>
+    </section>
+  </body>
+</html>

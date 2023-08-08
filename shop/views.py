@@ -1,9 +1,11 @@
 from django.db.models import Prefetch
-from django.http import JsonResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.http.response import Http404
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
 from rest_framework import generics, parsers
 from rest_framework import viewsets
+from shop.utils import gen_pdf
 
 from .models.product import Product, ProductItem, Category, OrderItem, Order
 from .serializers import (
@@ -12,8 +14,9 @@ from .serializers import (
     CategorySerializer,
     OrderItemSerializer,
     OrderSerializer,
-    UserPaymentSerializer
+    UserPaymentSerializer,
 )
+from accounts.serializers import AddressSerializer
 from shop.models import choices
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
@@ -159,6 +162,43 @@ class GetUserOrders(APIView):
         ]
 
         return Response(order_data)
+
+
+class GetInvoicePDF(APIView):
+    def get(self, request, orderId):
+        if not self.request.user.is_anonymous:
+            orderObj = Order.objects.select_related(
+                'user', 'payment', 'delivery_address'
+            ).prefetch_related(
+                Prefetch('items', queryset=OrderItem.objects.select_related(
+                    'product_item__product'))
+            ).get(user=request.user.userprofile, id=orderId)
+
+            data = {
+                "order": {
+                    "id": orderObj.id,
+                    "payment": UserPaymentSerializer(orderObj.payment).data,
+                    "deliveryAddress": AddressSerializer(orderObj.delivery_address).data,
+                    "deliveryMethod": orderObj.delivery_method,
+                    'orderDate': orderObj.created_at,
+                    "totalPrice": orderObj.get_total_cost(),
+                    "user": orderObj.user.user.email
+                },
+                "products": [{
+                    "id": item.product_item.id,
+                    "name": item.product_item.product.name,
+                    "image": item.product_item.image.url,
+                    "price": item.price,
+                    "qty": item.qty
+                }
+                    for item in orderObj.items.all()
+                ]
+            }
+
+            pdf = gen_pdf("invoice1.html", {
+                          'order': data["order"], 'products': data["products"]})
+            return HttpResponse(pdf, content_type="application/pdf")
+        return HttpResponseForbidden("<center>Unauthorized Request, Please Login to view this page</center>")
 
 
 class OrderItemCreateView(generics.CreateAPIView):

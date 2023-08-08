@@ -8,6 +8,11 @@ WORKDIR /app
 
 COPY ./requirements.txt .
 
+RUN apt-get -y update \
+    && apt-get install -y \
+    python3-pip python3-cffi python3-brotli libpango-1.0-0 libpangoft2-1.0-0 \
+    && apt-get -y clean
+
 RUN pip install -r requirements.txt
 
 COPY . /app
