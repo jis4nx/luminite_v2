@@ -16,6 +16,4 @@ urlpatterns = [
     path("items/", views.ShopItemView.as_view(), name="items"),
     path("user-orders/", views.GetUserOrders.as_view(), name="items"),
     path("invoice/<int:orderId>", views.GetInvoicePDF.as_view(), name="invoice"),
-
-
 ]

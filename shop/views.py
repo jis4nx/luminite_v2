@@ -1,6 +1,7 @@
 from django.db.models import Prefetch
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.http.response import Http404
+from django.utils.text import camel_case_to_spaces
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
 from rest_framework import generics, parsers
@@ -189,7 +190,8 @@ class GetInvoicePDF(APIView):
                     "name": item.product_item.product.name,
                     "image": item.product_item.image.url,
                     "price": item.price,
-                    "qty": item.qty
+                    "qty": item.qty,
+                    "subTotal": item.qty * item.price
                 }
                     for item in orderObj.items.all()
                 ]

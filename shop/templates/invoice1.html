@@ -1,14 +1,16 @@
 <html>
   <head>
     <style>
-      @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700);
+      @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700, 500);
+      #viewer{
+        zoom: 100%;
+      }
       html {
         font-family: "Open Sans";
       }
       @page {
-        size: "A4";
-        margin: 2.5cm 1.5cm 3.5cm 1.5cm;
-
+        size: A4;
+      }
         @top-center {
           content: "LUMINITE V2";
           color: #3730a3;
@@ -26,9 +28,12 @@
       }
       .invoice-table {
         margin-top: 3rem;
-        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
         font-family: "Open Sans";
         border-spacing: 0 15px;
+        border-collapse: collapse;
+        width: 700px;
       }
       .invoice-table thead tr {
         font-style: normal;
@@ -36,26 +41,36 @@
         border-bottom: 1px solid gray;
       }
 
+      .invoice-table thead tr td {
+        padding: 0.5rem;
+      }
       .invoice-table tbody tr {
         font-size: 0.8rem;
+        border-bottom: 1px solid gray;
+      }
+      .invoice-table tbody tr td {
+        padding: 0.8rem;
       }
       .invoice-footer {
         text-align: right;
-        margin-right: 150px;
+        margin-right: 10px;
         font-weight: 700;
       }
       .billing {
         display: flex;
+        margin-top: 5rem;
         justify-content: space-between;
-        margin-top: 3rem;
       }
+
       .legend {
         text-transform: uppercase;
-        font-size: 1rem;
+        font-size: 1.1rem;
         color: #54626f;
+        width: 220px;
+        font-weight: 500;
       }
       .billing p {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
       }
       .msg {
         margin-top: 2rem;
@@ -90,6 +105,7 @@
               <td>Item</td>
               <td>Quantity</td>
               <td>Price</td>
+              <td>Subtotal</td>
             </tr>
           </thead>
           <tbody>
@@ -98,12 +114,13 @@
               <td>{{product.name}}</td>
               <td>{{product.qty}}</td>
               <td>{{product.price}} /-</td>
+              <td>{{product.subTotal}} /-</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
         <div class="invoice-footer">
-          <p style="font-size: 0.8rem">Total Amount: {{order.totalPrice}} /-</p>
+          <p style="font-size: 0.9rem">Total Amount: {{order.totalPrice}} /-</p>
         </div>
       </div>
       <div class="billing">
