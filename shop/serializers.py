@@ -21,11 +21,16 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('name', 'parent')
+        fields = ('id', 'name', 'parent')
 
     def get_parent(self, obj):
+        cats = []
+        k = obj.parent
         if obj.parent:
-            return obj.parent.name
+            while k is not None:
+                cats.append({"id": obj.parent.id, "name": obj.parent.name})
+                k = k.parent
+            return cats
         return None
 
 

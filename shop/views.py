@@ -1,12 +1,11 @@
-from django.db.models import Prefetch
+from django.db.models import Q, Prefetch
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
-from django.http.response import Http404
-from django.utils.text import camel_case_to_spaces
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
 from rest_framework import generics, parsers
 from rest_framework import viewsets
 from shop.utils import gen_pdf
+from django.db.models import OuterRef, Subquery
 
 from .models.product import Product, ProductItem, Category, OrderItem, Order
 from .serializers import (
@@ -135,29 +134,37 @@ class GetUserOrders(APIView):
     def get(self, request):
         user = request.user.userprofile
 
-        user_orders = user.order_set.select_related('payment', 'delivery_address').prefetch_related(
-            Prefetch('items', queryset=OrderItem.objects.select_related(
-                'product_item__product'))
+        user_orders = user.order_set.select_related(
+            "payment", "delivery_address"
+        ).prefetch_related(
+            Prefetch(
+                "items",
+                queryset=OrderItem.objects.select_related(
+                    "product_item__product"),
+            )
         )
 
         order_data = [
             {
                 "order": {
-                    'id': order.id,
-                    'deliveryAddress': str(order.delivery_address),
-                    'deliveryMethod': order.delivery_method,
-                    'orderDate': order.created_at,
-                    'status': order.status,
-                    'totalPrice': order.get_total_cost(),
-                    'payment': UserPaymentSerializer(order.payment).data
+                    "id": order.id,
+                    "deliveryAddress": str(order.delivery_address),
+                    "deliveryMethod": order.delivery_method,
+                    "orderDate": order.created_at,
+                    "status": order.status,
+                    "totalPrice": order.get_total_cost(),
+                    "payment": UserPaymentSerializer(order.payment).data,
                 },
-                "products": [{
-                    "id": item.product_item.id,
-                    "name": item.product_item.product.name,
-                    "image": item.product_item.image.url,
-                    "price": item.price,
-                    "qty": item.qty
-                }for item in order.items.all()]
+                "products": [
+                    {
+                        "id": item.product_item.id,
+                        "name": item.product_item.product.name,
+                        "image": item.product_item.image.url,
+                        "price": item.price,
+                        "qty": item.qty,
+                    }
+                    for item in order.items.all()
+                ],
             }
             for order in user_orders
         ]
@@ -168,39 +175,53 @@ class GetUserOrders(APIView):
 class GetInvoicePDF(APIView):
     def get(self, request, orderId):
         if not self.request.user.is_anonymous:
-            orderObj = Order.objects.select_related(
-                'user', 'payment', 'delivery_address'
-            ).prefetch_related(
-                Prefetch('items', queryset=OrderItem.objects.select_related(
-                    'product_item__product'))
-            ).get(user=request.user.userprofile, id=orderId)
+            orderObj = (
+                Order.objects.select_related(
+                    "user", "payment", "delivery_address")
+                .prefetch_related(
+                    Prefetch(
+                        "items",
+                        queryset=OrderItem.objects.select_related(
+                            "product_item__product"
+                        ),
+                    )
+                )
+                .get(user=request.user.userprofile, id=orderId)
+            )
 
             data = {
                 "order": {
                     "id": orderObj.id,
                     "payment": UserPaymentSerializer(orderObj.payment).data,
-                    "deliveryAddress": AddressSerializer(orderObj.delivery_address).data,
+                    "deliveryAddress": AddressSerializer(
+                        orderObj.delivery_address
+                    ).data,
                     "deliveryMethod": orderObj.delivery_method,
-                    'orderDate': orderObj.created_at,
+                    "orderDate": orderObj.created_at,
                     "totalPrice": orderObj.get_total_cost(),
-                    "user": orderObj.user.user.email
+                    "user": orderObj.user.user.email,
                 },
-                "products": [{
-                    "id": item.product_item.id,
-                    "name": item.product_item.product.name,
-                    "image": item.product_item.image.url,
-                    "price": item.price,
-                    "qty": item.qty,
-                    "subTotal": item.qty * item.price
-                }
+                "products": [
+                    {
+                        "id": item.product_item.id,
+                        "name": item.product_item.product.name,
+                        "image": item.product_item.image.url,
+                        "price": item.price,
+                        "qty": item.qty,
+                        "subTotal": item.qty * item.price,
+                    }
                     for item in orderObj.items.all()
-                ]
+                ],
             }
 
-            pdf = gen_pdf("invoice1.html", {
-                          'order': data["order"], 'products': data["products"]})
+            pdf = gen_pdf(
+                "invoice1.html", {
+                    "order": data["order"], "products": data["products"]}
+            )
             return HttpResponse(pdf, content_type="application/pdf")
-        return HttpResponseForbidden("<center>Unauthorized Request, Please Login to view this page</center>")
+        return HttpResponseForbidden(
+            "<center>Unauthorized Request, Please Login to view this page</center>"
+        )
 
 
 class OrderItemCreateView(generics.CreateAPIView):
@@ -224,3 +245,47 @@ class OrderItemCreateView(generics.CreateAPIView):
                 return Response({"msg": "success"}, status=status.HTTP_201_CREATED)
 
         return Response(order.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SearchProduct(APIView):
+    def get(self, request):
+        product_name = self.request.query_params.get("product", None)
+        category_id = self.request.query_params.get("category", None)
+        if product_name or category_id:
+
+            product_objs = self.filter_products_with_items(
+                product=product_name, category=category_id)
+            res = self.serialize_products(product_objs)
+            return Response(res)
+
+    def filter_products_with_items(self, product=None, category=None):
+        first_product_item = ProductItem.objects.filter(
+            product=OuterRef("pk"), qty_in_stock__gt=1
+        ).order_by("id")
+
+        query = Q()
+
+        if product is not None:
+            query |= Q(name__icontains=product)
+
+        if category is not None:
+            query |= Q(category=category)
+
+        product_objs = Product.objects.filter(query).annotate(
+            first_item_id=Subquery(first_product_item.values("id")[:1])
+        )
+
+        return product_objs
+
+    def serialize_products(self, product_objs):
+        res = [
+            {
+                "name": product.name,
+                "item": ProductItemSerializer(
+                    product.product_items.get(id=product.first_item_id)
+                ).data,
+                "items": ProductItemSerializer(product.product_items, many=True).data
+            }
+            for product in product_objs
+        ]
+        return res
