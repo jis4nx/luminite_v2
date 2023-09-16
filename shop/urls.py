@@ -11,10 +11,12 @@ urlpatterns = [
     path("category/", views.CategoryView.as_view(), name="category"),
     path("product/<int:pk>", views.ProductRetrieveView.as_view(), name="product"),
     path("item/<int:pk>", views.ShopItemRetrieveView.as_view(), name="items"),
+    path("item/", views.CreateItemView.as_view(), name="create_item"),
     path("product-attr/", views.ProductAttributeView.as_view(), name="product-attr"),
     path("order/", views.OrderItemCreateView.as_view(), name="order"),
     path("items/", views.ShopItemView.as_view(), name="items"),
     path("user-orders/", views.GetUserOrders.as_view(), name="items"),
     path("invoice/<int:orderId>", views.GetInvoicePDF.as_view(), name="invoice"),
     path("search", views.SearchProduct.as_view(), name="search-product"),
+    path("filter-item", views.ProductItemFilter.as_view(), name="search-product"),
 ]

@@ -65,6 +65,11 @@ class ProductItemSerializer(serializers.ModelSerializer):
 
         return product_item
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['name'] = instance.product.name
+        return rep
+
 
 class UserPaymentSerializer(serializers.ModelSerializer):
     """

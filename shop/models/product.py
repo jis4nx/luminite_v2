@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from .choices import ProductSize, Colors, Status, DeliveryMethods, PaymentMethod
 from .user import Address, UserProfile
 
@@ -24,6 +25,14 @@ class Category(models.Model):
         return " -> ".join(full_path)
 
 
+class ProductType(models.Model):
+    product_type = models.CharField(max_length=20)
+    attributes = ArrayField(models.CharField(max_length=100))
+
+    def __str__(self):
+        return self.product_type
+
+
 class Product(models.Model):
     name = models.CharField(max_length=255)
     desc = models.TextField()
@@ -39,6 +48,7 @@ class ProductItem(models.Model):
         Product, on_delete=models.CASCADE, related_name="product_items")
     product_size = models.CharField(max_length=20, choices=ProductSize.choices)
     product_color = models.CharField(max_length=20, choices=Colors.choices)
+    attributes = models.JSONField(default=dict)
     qty_in_stock = models.PositiveIntegerField()
     image = models.ImageField(default="static/no_image.jpg")
     price = models.FloatField()

@@ -6,8 +6,10 @@ from rest_framework import generics, parsers
 from rest_framework import viewsets
 from shop.utils import gen_pdf
 from django.db.models import OuterRef, Subquery
+import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
 
-from .models.product import Product, ProductItem, Category, OrderItem, Order
+from .models.product import Product, ProductItem, Category, OrderItem, Order, ProductType
 from .serializers import (
     ProductItemSerializer,
     ProductSerializer,
@@ -35,6 +37,25 @@ class CategoryView(generics.ListCreateAPIView):
     parser_classes = [parsers.FormParser, parsers.MultiPartParser]
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
+
+
+class CreateItemView(APIView):
+    def post(self, request):
+        item_data = self.request.data
+        product_attributes = item_data.get('attributes')
+        product_type = item_data.get('product_type')
+        product_id = item_data.get('product')
+        product = generics.get_object_or_404(Product, pk=product_id)
+        product_type = item_data.get('product_type')
+        getType = generics.get_object_or_404(
+            ProductType, product_type=product_type)
+
+        if all(k in getType.attributes for k in product_attributes):
+            ProductItem.objects.create(
+                product=product, qty_in_stock=item_data.get('qty'),
+                price=item_data.get('price'), attributes=product_attributes)
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProductView(viewsets.ModelViewSet):
@@ -289,3 +310,16 @@ class SearchProduct(APIView):
             for product in product_objs
         ]
         return res
+
+
+class ProductItemFilter(APIView):
+    def post(self, request):
+        attr_data = {k: v for k, v in request.data.items() if v}
+        query = Q()
+        query = Q(**{f"attributes__{k}__in": v for k,
+                  v in attr_data.items()})
+        filtered_items = ProductItem.objects.filter(query)
+        items = ProductItemSerializer(filtered_items, many=True).data
+        if attr_data:
+            return Response(items)
+        return Response([])
