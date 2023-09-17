@@ -314,12 +314,15 @@ class SearchProduct(APIView):
 
 class ProductItemFilter(APIView):
     def post(self, request):
-        attr_data = {k: v for k, v in request.data.items() if v}
-        query = Q()
-        query = Q(**{f"attributes__{k}__in": v for k,
-                  v in attr_data.items()})
-        filtered_items = ProductItem.objects.filter(query)
+        attr_data = {k: v for k, v in request.data.get(
+            'attributes').items() if v}
+        price = request.data.get('price')
+        attr_query = Q(**{f"attributes__{k}__in": v for k,
+                          v in attr_data.items()})
+        price_query = Q(price__gte=price.get('min'),
+                        price__lte=price.get('max'))
+        filtered_items = ProductItem.objects.filter(attr_query, price_query)
         items = ProductItemSerializer(filtered_items, many=True).data
-        if attr_data:
+        if request.data:
             return Response(items)
         return Response([])
