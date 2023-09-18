@@ -15,4 +15,6 @@ urlpatterns = [
     path("logout/", views.LogoutView.as_view(), name="logout"),
     path("profile", views.ProfileView.as_view(), name="profile"),
     path("address", views.AddressView.as_view(), name="address"),
+    path("getaddress/<int:pk>", views.GetAddressView.as_view(), name="getaddress"),
+
 ]

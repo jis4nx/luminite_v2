@@ -1,5 +1,5 @@
-from django.views import generic
-from rest_framework.generics import CreateAPIView, mixins
+from rest_framework.generics import CreateAPIView, ListCreateAPIView, mixins
+from rest_framework.parsers import FormParser, JSONParser
 from rest_framework.response import Response
 from .serializers import AddressSerializer, RegisterSerializer, UserProfileSerializer
 from .models import User
@@ -121,24 +121,17 @@ class ProfileView(APIView):
                         status=status.HTTP_401_UNAUTHORIZED)
 
 
-class AddressView(mixins.ListModelMixin,
-                  mixins.CreateModelMixin,
-                  generics.GenericAPIView):
+class AddressView(ListCreateAPIView):
     serializer_class = AddressSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = [filters.DjangoFilterBackend]
 
     def get_queryset(self):
         return Address.objects.filter(user_profile=self.request.user.userprofile)
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+class GetAddressView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = AddressSerializer
+    parser_classes = [JSONParser]
 
-    def handle_exception(self, exc):
-        if isinstance(exc, serializers.ValidationError):
-            return Response({'error': 'Maximum address limit reached for this user'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        return super().handle_exception(exc)
+    def get_queryset(self):
+        return Address.objects.filter(user_profile=self.request.user.userprofile)
