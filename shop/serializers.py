@@ -21,7 +21,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'parent')
+        fields = ('id', 'name', 'subcat', 'parent')
+        depth = 5
 
     def get_parent(self, obj):
         cats = []
@@ -32,6 +33,20 @@ class CategorySerializer(serializers.ModelSerializer):
                 k = k.parent
             return cats
         return None
+
+
+class SimpleCategorySerializer(serializers.ModelSerializer):
+    subcategories = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'subcategories']
+
+    def get_subcategories(self, obj):
+        subcategories = Category.objects.filter(parent=obj)
+        if subcategories:
+            return SimpleCategorySerializer(subcategories, many=True).data
+        return []
 
 
 class ProductSerializer(serializers.ModelSerializer):

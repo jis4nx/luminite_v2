@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from accounts.models import Seller
+
 from .choices import ProductSize, Colors, Status, DeliveryMethods, PaymentMethod
 from .user import Address, UserProfile
 
@@ -17,12 +19,32 @@ class Category(models.Model):
     # Display Sub Categories with Top Level Categories
 
     def __str__(self):
-        full_path = [self.name]
-        k = self.parent
-        while k is not None:
-            full_path.append(k.name)
-            k = k.parent
-        return " -> ".join(full_path)
+        return self.name
+        # full_path = [self.name]
+        # k = self.parent
+        # while k is not None:
+        #     full_path.append(k.name)
+        #     k = k.parent
+        # return " -> ".join(full_path)
+
+    def get_all_subcategories(self):
+        def collect_subcategories(category):
+            subcategories = []
+
+            for subcat in category.subcat.all():
+                subcategories.append(collect_subcategories(subcat))
+
+            if subcategories:
+                return {
+                    'category': category,
+                    'subcategories': subcategories,
+                }
+            else:
+                return {
+                    'category': category,
+                }
+
+        return collect_subcategories(self)
 
 
 class ProductType(models.Model):
@@ -35,6 +57,7 @@ class ProductType(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
+    owner = models.ForeignKey(Seller, on_delete=models.CASCADE, default=4)
     desc = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     base_price = models.PositiveIntegerField()
