@@ -36,12 +36,12 @@ class Category(models.Model):
 
             if subcategories:
                 return {
-                    'category': category,
-                    'subcategories': subcategories,
+                    "category": category,
+                    "subcategories": subcategories,
                 }
             else:
                 return {
-                    'category': category,
+                    "category": category,
                 }
 
         return collect_subcategories(self)
@@ -68,7 +68,8 @@ class Product(models.Model):
 
 class ProductItem(models.Model):
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="product_items")
+        Product, on_delete=models.CASCADE, related_name="product_items"
+    )
     product_size = models.CharField(max_length=20, choices=ProductSize.choices)
     product_color = models.CharField(max_length=20, choices=Colors.choices)
     attributes = models.JSONField(default=dict)
@@ -82,8 +83,7 @@ class ProductItem(models.Model):
 
 class UserPayment(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    payment_type = models.CharField(
-        max_length=20, choices=PaymentMethod.choices)
+    payment_type = models.CharField(max_length=20, choices=PaymentMethod.choices)
     account_no = models.CharField(max_length=255)
 
     def __str__(self):
@@ -97,8 +97,7 @@ class Order(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     payment = models.ForeignKey(UserPayment, on_delete=models.CASCADE)
     delivery_address = models.ForeignKey(Address, on_delete=models.CASCADE)
-    delivery_method = models.CharField(
-        max_length=20, choices=DeliveryMethods.choices)
+    delivery_method = models.CharField(max_length=20, choices=DeliveryMethods.choices)
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.PENDING
     )
@@ -106,7 +105,7 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ('-created_at',)
+        ordering = ("-created_at",)
 
     def __str__(self):
         return f"Order #{self.id}"
@@ -118,18 +117,18 @@ class Order(models.Model):
     @property
     def get_user_product_items(self):
         product_items = []
-        for order_item in self.items.prefetch_related('product_item'):
+        for order_item in self.items.prefetch_related("product_item"):
             if order_item.product_item:
                 product_items.append(order_item.product_item)
         return product_items
 
 
 class OrderItem(models.Model):
+    merchant_id = models.ForeignKey(Seller, on_delete=models.CASCADE, related_name="merchants")
     product_item = models.ForeignKey(
-        ProductItem, on_delete=models.SET_NULL, null=True,
-        related_name="order_items")
-    order = models.ForeignKey(
-        Order, on_delete=models.CASCADE, related_name='items')
+        ProductItem, on_delete=models.SET_NULL, null=True, related_name="order_items"
+    )
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
 
     price = models.DecimalField(max_digits=10, decimal_places=2)
     qty = models.PositiveSmallIntegerField()
@@ -141,3 +140,6 @@ class OrderItem(models.Model):
 
     def get_cost(self):
         return self.price * self.qty
+
+    class Meta:
+        ordering = ("-updated_at",)

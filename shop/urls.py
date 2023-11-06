@@ -1,9 +1,14 @@
 from django.urls import include, path
 from rest_framework import routers
-from shop.views import user_views
+from shop.views import user_views,merchant_views
 
 router = routers.DefaultRouter()
 router.register(r"product", user_views.ProductView, basename="product")
+
+
+merchant_urls = [
+    path("list-orders/", merchant_views.ListOrders.as_view())
+]
 
 urlpatterns = [
     path("", user_views.Index.as_view()),
@@ -21,4 +26,4 @@ urlpatterns = [
     path("invoice/<int:orderId>", user_views.GetInvoicePDF.as_view(), name="invoice"),
     path("search", user_views.SearchProduct.as_view(), name="search-product"),
     path("filter-item", user_views.ProductItemFilter.as_view(), name="search-product"),
-]
+]+merchant_urls

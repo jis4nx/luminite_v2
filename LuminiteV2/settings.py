@@ -4,7 +4,11 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
-from django.conf.global_settings import CSRF_COOKIE_SECURE, MEDIA_URL, SESSION_COOKIE_SECURE
+from django.conf.global_settings import (
+    CSRF_COOKIE_SECURE,
+    MEDIA_URL,
+    SESSION_COOKIE_SECURE,
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -105,17 +109,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "accounts.authenticate.CustomAuthentication",
-    ),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema"
+    "DEFAULT_AUTHENTICATION_CLASSES": ("accounts.authenticate.CustomAuthentication",),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
 }
 
 SPECTACULAR_SETTINGS = {
-    'SWAGGER_UI_DIST': 'SIDECAR',
-    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
-    'REDOC_DIST': 'SIDECAR',
-
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
     "SWAGGER_UI_SETTINGS": {
         "deepLinking": True,
         "persistAuthorization": True,
@@ -139,8 +141,10 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-STATIC_FILES_DIRS = [os.path.join(
-    BASE_DIR, "static"), os.path.join(BASE_DIR, "public/static")]
+STATIC_FILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "public/static"),
+]
 
 
 MEDIA_URL = "/media/"
@@ -152,12 +156,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
 CORS_ORIGIN_WHITELIST = [
-    'http://127.0.0.1:3000',
+    "http://127.0.0.1:3000",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
 
 
-INTERNAL_IPS = ['127.0.0.1']
+INTERNAL_IPS = ["127.0.0.1"]
 hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
 INTERNAL_IPS += [".".join(ip.split(".")[:-1] + ["1"]) for ip in ips]
