@@ -1,3 +1,4 @@
+import pytest
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from accounts.models import User
@@ -6,16 +7,15 @@ from shop.models.user import UserProfile, Address
 
 class TestUserAccount(APITestCase):
     def setUp(self) -> None:
-        self.register_url = reverse('register')
+        self.register_url = reverse("register")
         self.user_data = {
             "email": "test@gmail.com",
             "password": "test123@123",
             "type": "OTHER",
-            "password2": "test123@123"
+            "password2": "test123@123",
         }
 
-        self.res = self.client.post(
-            reverse('register'), self.user_data, format="json")
+        self.res = self.client.post(reverse("register"), self.user_data, format="json")
 
         self.user = User.objects.all()
         self.user_profile = UserProfile.objects.all()
@@ -28,7 +28,7 @@ class TestUserAccount(APITestCase):
             address_line1="420/69 one way",
             city="uganda",
             postal_code="69420H",
-            user_profile=self.user_profile.first()
+            user_profile=self.user_profile.first(),
         )
         return super().setUp()
 
@@ -49,10 +49,20 @@ class TestUserAccount(APITestCase):
 
         profile = self.user_profile.first()
         self.assertEqual(self.user_profile.count(), 1)
-        self.assertEqual(profile.user.email,
-                         "test@gmail.com")
+        self.assertEqual(profile.user.email, "test@gmail.com")
         self.assertEqual(profile.addresses.count(), 1)
         profile.save()
 
         """Check for address assignment to User Profile"""
         self.assertEqual(str(profile.addresses.first()), str(self.address))
+
+
+@pytest.fixture
+def user_sellerA(db, user_factory):
+    user = user_factory(type="SELLER")
+    return user
+
+
+@pytest.mark.django_db
+def test_seller_account(user_sellerA):
+    assert user_sellerA.type == "SELLER"

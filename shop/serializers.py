@@ -60,6 +60,12 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class UserProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = "__all__"
+
+
 class ProductItemSerializer(serializers.ModelSerializer):
     """
     Serializer for Product Item Object

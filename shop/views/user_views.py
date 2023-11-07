@@ -24,6 +24,7 @@ from shop.serializers import (
     OrderSerializer,
     SimpleCategorySerializer,
     UserPaymentSerializer,
+    UserProductSerializer,
 )
 from accounts.serializers import AddressSerializer
 from shop.models import choices
@@ -68,9 +69,9 @@ class CreateItemView(APIView):
 
 
 class ProductView(viewsets.ModelViewSet):
-    parser_classes = [parsers.FormParser, parsers.MultiPartParser]
+    parser_classes = [parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser]
     queryset = Product.objects.all()
-    serializer_class = ProductSerializer
+    serializer_class = UserProductSerializer
 
 
 class ProductRetrieveView(APIView):

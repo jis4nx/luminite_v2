@@ -16,7 +16,7 @@ urlpatterns = [
     path("category/", user_views.CategoryView.as_view(), name="category"),
     path("product/<int:pk>", user_views.ProductRetrieveView.as_view(), name="product"),
     path("item/<int:pk>", user_views.ShopItemRetrieveView.as_view(), name="items"),
-    path("item/", user_views.CreateItemView.as_view(), name="create_item"),
+    path("item/", user_views.CreateItemView.as_view(), name="create-item"),
     path(
         "product-attr/", user_views.ProductAttributeView.as_view(), name="product-attr"
     ),
