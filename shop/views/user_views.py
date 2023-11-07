@@ -264,18 +264,18 @@ class OrderItemCreateView(generics.CreateAPIView):
                 order_instance = order.save()
                 order_item_data = []
                 for item in items_data:
+                    item_id = item.get("product_item")
+                    product_item = ProductItem.objects.select_related().get(id=item_id)
                     order_item_data.append(
                         dict(
                             item,
                             order=order_instance.id,
-                            merchant_id=ProductItem.objects.get(
-                                id=item.get("product_item")
-                            ).product.owner.id,
+                            merchant_id=product_item.product.owner.id,
                         )
                     )
-                    ProductItem.objects.filter(id=item.get("product_item")).update(
-                        qty_in_stock=F("qty_in_stock") - item.get("qty")
-                    )
+
+                    product_item.qty_in_stock = F("qty_in_stock") - item.get("qty")
+                    product_item.save()
 
                 order_item_serializer = self.get_serializer(
                     data=order_item_data, many=True
