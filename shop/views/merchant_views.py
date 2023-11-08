@@ -1,9 +1,9 @@
 from rest_framework.views import APIView, Response, status
 from rest_framework import generics
 from django.db.models import Q, Prefetch
-from shop.models.product import OrderItem
+from shop.models.product import OrderItem, Product
 from rest_framework.pagination import LimitOffsetPagination
-from shop.serializers import MerchantOrderItemSerializer
+from shop.serializers import MerchantOrderItemSerializer, UserProductSerializer
 from shop.models.product import ProductItem, Order
 
 
@@ -25,3 +25,11 @@ class ListOrders(generics.ListAPIView):
 
             return order_items
         return Response(status=status.HTTP_403_FORBIDDEN)
+
+
+class GetMerchantProducts(generics.ListAPIView):
+    serializer_class = UserProductSerializer
+
+    def get_queryset(self):
+        product = Product.objects.filter(owner=self.request.user.id)
+        return product

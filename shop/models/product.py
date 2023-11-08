@@ -70,8 +70,12 @@ class ProductItem(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="product_items"
     )
-    product_size = models.CharField(max_length=20, choices=ProductSize.choices)
-    product_color = models.CharField(max_length=20, choices=Colors.choices)
+    product_size = models.CharField(
+        max_length=20, choices=ProductSize.choices, null=True, blank=True
+    )
+    product_color = models.CharField(
+        max_length=20, choices=Colors.choices, null=True, blank=True
+    )
     attributes = models.JSONField(default=dict)
     qty_in_stock = models.PositiveIntegerField()
     image = models.ImageField(default="static/no_image.jpg")
@@ -124,7 +128,9 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    merchant_id = models.ForeignKey(Seller, on_delete=models.CASCADE, related_name="merchants")
+    merchant_id = models.ForeignKey(
+        Seller, on_delete=models.CASCADE, related_name="merchants"
+    )
     product_item = models.ForeignKey(
         ProductItem, on_delete=models.SET_NULL, null=True, related_name="order_items"
     )
