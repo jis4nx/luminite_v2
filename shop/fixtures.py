@@ -1,6 +1,8 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 import pytest
-from shop.models.product import Product, Category, ProductItem, ProductType
+from shop.models.choices import PaymentMethod
+from shop.models.product import Product, Category, ProductItem, ProductType, UserPayment
+from shop.serializers import UserPaymentSerializer
 
 
 @pytest.fixture
@@ -36,7 +38,8 @@ def product_typeA(db):
 
 
 @pytest.fixture
-def product_itemA(db, new_product):
+@pytest.mark.django_db
+def product_itemA(new_product):
     item = ProductItem.objects.create(
         product=new_product,
         image=SimpleUploadedFile(
@@ -49,6 +52,15 @@ def product_itemA(db, new_product):
         qty_in_stock=10,
     )
     return item
+
+
+@pytest.fixture
+@pytest.mark.django_db
+def new_payment(new_userA):
+    payment = UserPayment.objects.create(
+        user=new_userA.userprofile, payment_type=PaymentMethod.BKS, account_no="4934991"
+    )
+    return payment
 
 
 @pytest.fixture
@@ -66,3 +78,29 @@ def product_item_factory_json(product_typeA):
         return data
 
     return create_product_item_json
+
+
+@pytest.fixture()
+def order_item_factory(new_payment, new_addressA, new_userA):
+    def create_new_order_json(
+        payment=new_payment,
+        delivery_method="PTH",
+        delivery_address=new_addressA,
+        user=new_userA,
+        items=[product_itemA],
+        qty=2,
+    ):
+        order_data = {
+            "order": {
+                "payment": UserPaymentSerializer(payment).data,
+                "delivery_method": delivery_method,
+                "user": user.pk,
+                "delivery_address": delivery_address.pk,
+            },
+            "items": [
+                dict(product_item=item.pk, price=item.price, qty=qty) for item in items
+            ],
+        }
+        return order_data
+
+    return create_new_order_json

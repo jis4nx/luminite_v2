@@ -36,7 +36,6 @@ class TestUserAccount(APITestCase):
         return super().tearDown()
 
     def test_user_register_with_url(self):
-        print(self.res.status_code)
         self.assertEqual(self.res.status_code, 201)
 
     def test_user_type(self):
@@ -55,12 +54,6 @@ class TestUserAccount(APITestCase):
 
         """Check for address assignment to User Profile"""
         self.assertEqual(str(profile.addresses.first()), str(self.address))
-
-
-@pytest.fixture
-def user_sellerA(db, user_factory):
-    user = user_factory(type="SELLER")
-    return user
 
 
 @pytest.mark.django_db

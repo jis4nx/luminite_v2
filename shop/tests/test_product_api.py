@@ -1,5 +1,6 @@
 import pytest
 from rest_framework.test import APIClient
+from shop.models.product import Order, OrderItem
 from shop.serializers import (
     UserProductSerializer,
 )
@@ -55,15 +56,11 @@ Test for creating new Product Item With Json Schema
 
 
 @pytest.mark.django_db
-def test_product_item_json(new_product, product_typeA):
-    payload = {
-        "product_type": "Cloth",
-        "price": 1500,
-        "product": new_product.pk,
-        "qty": 10,
-        "attributes": {"size": "XL", "color": "Green"},
-    }
-    product = client.post(reverse("create-item"), payload, format="json")
+def test_product_item_json(new_product, product_item_factory_json):
+    item = product_item_factory_json(
+        product=new_product, attributes={"size": "S", "color": "Black"}
+    )
+    product = client.post(reverse("create-item"), item, format="json")
 
     assert product.status_code == 201
 
@@ -80,3 +77,15 @@ def test_product_item_attribute(new_product, product_item_factory_json):
     )
     product = client.post(reverse("create-item"), item, format="json")
     assert product.status_code == 400
+
+
+"""
+Test Order Item
+"""
+
+
+@pytest.mark.django_db(transaction=True)
+def test_order_item(order_item_factory, product_itemA):
+    order_item = order_item_factory(qty=2, items=[product_itemA])
+    order = client.post(reverse("order"), order_item, format="json")
+    assert order.status_code == 201
