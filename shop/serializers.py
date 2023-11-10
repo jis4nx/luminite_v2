@@ -6,6 +6,7 @@ from .models.product import (
     Category,
     Order,
     OrderItem,
+    ProductType,
 )
 
 from rest_framework import serializers
@@ -156,3 +157,9 @@ class MerchantOrderItemSerializer(serializers.ModelSerializer):
             instance.product_item, context={"request": self.context["request"]}
         ).data
         return rep
+
+
+class ProductTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductType
+        fields = ("product_type", "attributes")

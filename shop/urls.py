@@ -11,7 +11,15 @@ merchant_urls = [
     path(
         "merchant-products/",
         merchant_views.GetMerchantProducts.as_view(),
-        name="merchant-orders",
+        name="merchant-products",
+    ),
+    path(
+        "product-types/", merchant_views.GetProductTypes.as_view(), name="product-types"
+    ),
+    path(
+        "merchant-items/",
+        merchant_views.ListProductItems.as_view(),
+        name="merchant-items",
     ),
 ]
 
