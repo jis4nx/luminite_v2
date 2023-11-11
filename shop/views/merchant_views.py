@@ -6,11 +6,13 @@ from rest_framework.pagination import LimitOffsetPagination
 from shop.serializers import (
     MerchantOrderItemSerializer,
     ProductItemSerializer,
+    ProductSerializer,
     ProductTypeSerializer,
     UserProductSerializer,
 )
 from shop.models.product import ProductItem, Order
 import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class ListOrders(generics.ListAPIView):
@@ -33,11 +35,35 @@ class ListOrders(generics.ListAPIView):
         return Response(status=status.HTTP_403_FORBIDDEN)
 
 
-class GetMerchantProducts(generics.ListAPIView):
+class MerchantProductFilter(django_filters.FilterSet):
+    category = django_filters.CharFilter(
+        field_name="category__name", lookup_expr="icontains"
+    )
+    name = django_filters.CharFilter(field_name="name", lookup_expr="icontains")
+
+    class Meta:
+        model = Product
+        fields = ["category", "name"]
+
+
+class MerchantProducts(generics.ListAPIView):
+    serializer_class = UserProductSerializer
+    pagination_class = LimitOffsetPagination
+    filterset_class = MerchantProductFilter
+    ordering_fields = ["base_price"]
+
+    def get_queryset(self):
+        product = Product.objects.select_related("category", "category__parent").filter(
+            owner__id=self.request.user.id
+        )
+        return product
+
+
+class GetMerchantProduct(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserProductSerializer
 
     def get_queryset(self):
-        product = Product.objects.filter(owner=self.request.user.id)
+        product = Product.objects.filter(owner__id=self.request.user.id)
         return product
 
 

@@ -10,7 +10,7 @@ merchant_urls = [
     path("list-orders/", merchant_views.ListOrders.as_view(), name="merchant-orders"),
     path(
         "merchant-products/",
-        merchant_views.GetMerchantProducts.as_view(),
+        merchant_views.MerchantProducts.as_view(),
         name="merchant-products",
     ),
     path(
@@ -20,6 +20,11 @@ merchant_urls = [
         "merchant-items/",
         merchant_views.ListProductItems.as_view(),
         name="merchant-items",
+    ),
+    path(
+        "merchant-products/<int:pk>",
+        merchant_views.GetMerchantProduct.as_view(),
+        name="merchant-product",
     ),
 ]
 

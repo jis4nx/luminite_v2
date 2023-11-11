@@ -66,6 +66,12 @@ class UserProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = "__all__"
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["category"] = dict(name=instance.category.name, id=instance.category.id)
+        rep["total_items"] = instance.product_items.count()
+        return rep
+
 
 class ProductItemSerializer(serializers.ModelSerializer):
     """
