@@ -1,3 +1,4 @@
+import json
 from rest_framework.views import APIView, Response, status
 from rest_framework import generics
 from django.db.models import Q, Prefetch
@@ -63,8 +64,32 @@ class GetMerchantProduct(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserProductSerializer
 
     def get_queryset(self):
-        product = Product.objects.filter(owner__id=self.request.user.id)
+        product = Product.objects.filter(owner=self.request.user.id)
         return product
+
+
+class ListProductItems(generics.ListAPIView):
+    serializer_class = ProductItemSerializer
+    pagination_class = LimitOffsetPagination
+    ordering_fields = ["qty_in_stock"]
+
+    def get_queryset(self):
+        attr_params = self.request.query_params
+        price = self.request.query_params.get("price", None)
+        qty = self.request.query_params.get("qty", None)
+        product_id = self.kwargs["pk"]
+        query = Q()
+        for k, v in attr_params.lists():
+            if k not in ["qty", "price"]:
+                query &= Q(
+                    **{f"attributes__{k}__in": [v] if type(v) is not list else v}
+                )
+        items = ProductItem.objects.select_related("product").filter(
+            query & Q(product=product_id),
+            price=price if price else None,
+            qty_in_stock=qty if qty else None,
+        )
+        return items
 
 
 class GetProductTypes(generics.ListAPIView):
@@ -72,25 +97,25 @@ class GetProductTypes(generics.ListAPIView):
     queryset = ProductType.objects.all()
 
 
-class MerchantProductItemFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(
-        field_name="product__name", lookup_expr="icontains"
-    )
-
-    class Meta:
-        model = ProductItem
-        fields = ["name", "qty_in_stock", "price"]
-
-
-class ListProductItems(generics.ListAPIView):
-    serializer_class = ProductItemSerializer
-    pagination_class = LimitOffsetPagination
-    filterset_class = MerchantProductItemFilter
-    ordering_fields = ["qty_in_stock", "price"]
-
-    def get_queryset(self):
-        owner_id = self.request.user.id
-        products = ProductItem.objects.select_related("product").filter(
-            product__owner=owner_id
-        )
-        return products
+# class MerchantProductItemFilter(django_filters.FilterSet):
+#     name = django_filters.CharFilter(
+#         field_name="product__name", lookup_expr="icontains"
+#     )
+#
+#     class Meta:
+#         model = ProductItem
+#         fields = ["name", "qty_in_stock", "price"]
+#
+#
+# class ListProductItems(generics.ListAPIView):
+#     serializer_class = ProductItemSerializer
+#     pagination_class = LimitOffsetPagination
+#     filterset_class = MerchantProductItemFilter
+#     ordering_fields = ["qty_in_stock", "price"]
+#
+#     def get_queryset(self):
+#         owner_id = self.request.user.id
+#         products = ProductItem.objects.select_related("product").filter(
+#             product__owner=owner_id
+#         )
+#         return products

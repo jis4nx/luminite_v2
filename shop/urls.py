@@ -26,6 +26,7 @@ merchant_urls = [
         merchant_views.GetMerchantProduct.as_view(),
         name="merchant-product",
     ),
+    path("merchant-product-items/<int:pk>", merchant_views.ListProductItems.as_view()),
 ]
 
 urlpatterns = [
