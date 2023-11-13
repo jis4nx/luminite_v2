@@ -1,5 +1,7 @@
 from django.db.models import Q, Prefetch, F
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.shortcuts import redirect
+from django.urls import reverse
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
 from rest_framework import generics, parsers
@@ -35,8 +37,7 @@ class Index(APIView):
     """Api endpoints for accessing resources"""
 
     def get(self, request):
-        navs = ["Products: /shop/products/"]
-        return Response(navs)
+        return redirect(reverse("redoc"))
 
 
 class CategoryView(generics.ListCreateAPIView):

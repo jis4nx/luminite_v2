@@ -77,19 +77,31 @@ class ListProductItems(generics.ListAPIView):
         attr_params = self.request.query_params
         price = self.request.query_params.get("price", None)
         qty = self.request.query_params.get("qty", None)
+
         product_id = self.kwargs["pk"]
+
         query = Q()
         for k, v in attr_params.lists():
             if k not in ["qty", "price"]:
                 query &= Q(
                     **{f"attributes__{k}__in": [v] if type(v) is not list else v}
                 )
+        if price:
+            query &= Q(price=price)
+        if qty:
+            query &= Q(qty_in_stock=qty)
         items = ProductItem.objects.select_related("product").filter(
-            query & Q(product=product_id),
-            price=price if price else None,
-            qty_in_stock=qty if qty else None,
+            query & Q(product=product_id)
         )
         return items
+
+    def list(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        values = qs.values_list("attributes", flat=True).distinct()
+        unique_values = set(value for item in values for value in item.keys())
+        serializer = self.get_serializer(qs, many=True)
+        resp = {"attributes": unique_values, "items": serializer.data}
+        return Response(resp)
 
 
 class GetProductTypes(generics.ListAPIView):
