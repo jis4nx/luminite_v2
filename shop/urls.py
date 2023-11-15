@@ -26,7 +26,9 @@ merchant_urls = [
         merchant_views.GetMerchantProduct.as_view(),
         name="merchant-product",
     ),
+    path("item/", merchant_views.CreateItemView.as_view(), name="create-item"),
     path("merchant-product-items/<int:pk>", merchant_views.ListProductItems.as_view()),
+    path("merchant-product-item/<int:pk>", merchant_views.GetItemView.as_view()),
 ]
 
 urlpatterns = [
@@ -35,7 +37,6 @@ urlpatterns = [
     path("category/", user_views.CategoryView.as_view(), name="category"),
     path("product/<int:pk>", user_views.ProductRetrieveView.as_view(), name="product"),
     path("item/<int:pk>", user_views.ShopItemRetrieveView.as_view(), name="items"),
-    path("item/", user_views.CreateItemView.as_view(), name="create-item"),
     path(
         "product-attr/", user_views.ProductAttributeView.as_view(), name="product-attr"
     ),

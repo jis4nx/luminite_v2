@@ -71,6 +71,9 @@ class ProductItem(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="product_items"
     )
+    product_type = models.ForeignKey(
+        ProductType, on_delete=models.CASCADE, related_name="product_items"
+    )
     product_size = models.CharField(
         max_length=20, choices=ProductSize.choices, null=True, blank=True
     )

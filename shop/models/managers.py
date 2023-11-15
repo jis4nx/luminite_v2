@@ -13,7 +13,7 @@ class ProductItemQuerySet(models.QuerySet):
         if price:
             query &= Q(price=price)
         if qty:
-            query &= Q(qty_in_stock=qty)
+            query &= Q(qty_in_stock__lte=qty)
         items = self.filter(query)
         return items
 

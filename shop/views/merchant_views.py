@@ -1,5 +1,5 @@
 from rest_framework.views import APIView, Response, status
-from rest_framework import generics
+from rest_framework import generics, parsers
 from django.db.models import Q, Prefetch
 from shop.models.product import OrderItem, Product, ProductType
 from rest_framework.pagination import LimitOffsetPagination
@@ -43,6 +43,24 @@ class MerchantProductFilter(django_filters.FilterSet):
     class Meta:
         model = Product
         fields = ["category", "name"]
+
+
+class CreateItemView(generics.CreateAPIView):
+    serializer_class = ProductItemSerializer
+    queryset = ProductItem.objects.all()
+    parser_classes = [parsers.JSONParser]
+
+
+class GetItemView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ProductItemSerializer
+    queryset = ProductItem.objects.all()
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.serializer_class(instance, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+        return Response(serializer.data)
 
 
 class MerchantProducts(generics.ListAPIView):

@@ -73,26 +73,70 @@ class UserProductSerializer(serializers.ModelSerializer):
         return rep
 
 
-class ProductItemSerializer(serializers.ModelSerializer):
+class MerchantProductItemSerializer(serializers.ModelSerializer):
     """
     Serializer for Product Item Object
     """
 
+    product_id = serializers.IntegerField()
+    product_type = serializers.CharField()
+
+    class Meta:
+        model = ProductItem
+        fields = ["qty_in_stock", "price", "attributes", "product_id", "product_type"]
+
+    def create(self, validated_data):
+        productKey = self.validated_data["product_id"]
+        qty = self.validated_data["qty_in_stock"]
+        price = self.validated_data["price"]
+        attributes = self.validated_data["attributes"]
+        product_type = ProductType.objects.get(
+            product_type=self.validated_data["product_type"]
+        )
+        product = Product.objects.get(id=productKey)
+        if self.instance is None:
+            product_item = ProductItem.objects.create(
+                product=product,
+                qty_in_stock=qty,
+                price=price,
+                attributes=attributes,
+                product_type=product_type,
+            )
+        return product_item
+
+    def update(self, instance, validated_data):
+        instance.qty_in_stock = validated_data.get(
+            "qty_in_stock", instance.qty_in_stock
+        )
+        instance.attributes = validated_data.get("attributes", instance.attributes)
+        instance.price = validated_data.get("price", instance.price)
+        product_type = validated_data.get("product_type", instance.product_type)
+        product = validated_data.get("product_id", instance.product.id)
+        product_type = ProductType.objects.get(product_type=product_type)
+        product = Product.objects.get(id=product)
+        instance.product_type = product_type
+        instance.product = product
+
+        instance.save()
+        return instance
+
+    def validate(self, attrs):
+        product_type = attrs.get("product_type")
+        product_attrs = attrs.get("attributes")
+        getType = ProductType.objects.get(product_type=product_type)
+        product = attrs.get("product_id")
+        if not Product.objects.filter(id=product).exists():
+            return serializers.ValidationError("Product doesn't exist!")
+
+        if getType and all(k in getType.attributes for k in product_attrs):
+            return attrs
+        raise serializers.ValidationError("Check Product Type & Attributes")
+
+
+class ProductItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductItem
         fields = "__all__"
-
-    def create(self, validated_data):
-        product = self.validated_data["product"]
-        product_size = self.validated_data["product_size"]
-        product_color = self.validated_data["product_color"]
-        if ProductItem.objects.filter(
-            product=product, product_size=product_size, product_color=product_color
-        ).exists():
-            raise serializers.ValidationError("Product Item already exists!")
-        product_item = ProductItem.objects.create(**validated_data)
-
-        return product_item
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
