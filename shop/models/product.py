@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from accounts.models import Seller
+from shop.models.managers import ProductItemManager
 
 from .choices import ProductSize, Colors, Status, DeliveryMethods, PaymentMethod
 from .user import Address, UserProfile
@@ -80,6 +81,8 @@ class ProductItem(models.Model):
     qty_in_stock = models.PositiveIntegerField()
     image = models.ImageField(default="static/no_image.jpg")
     price = models.FloatField()
+
+    objects = ProductItemManager()
 
     def __str__(self):
         return self.product.name

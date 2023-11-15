@@ -1,19 +1,17 @@
-import json
 from rest_framework.views import APIView, Response, status
 from rest_framework import generics
 from django.db.models import Q, Prefetch
 from shop.models.product import OrderItem, Product, ProductType
 from rest_framework.pagination import LimitOffsetPagination
+from collections import defaultdict
 from shop.serializers import (
     MerchantOrderItemSerializer,
     ProductItemSerializer,
-    ProductSerializer,
     ProductTypeSerializer,
     UserProductSerializer,
 )
 from shop.models.product import ProductItem, Order
 import django_filters
-from django_filters.rest_framework import DjangoFilterBackend
 
 
 class ListOrders(generics.ListAPIView):
@@ -79,28 +77,29 @@ class ListProductItems(generics.ListAPIView):
         qty = self.request.query_params.get("qty", None)
 
         product_id = self.kwargs["pk"]
-
-        query = Q()
-        for k, v in attr_params.lists():
-            if k not in ["qty", "price"]:
-                query &= Q(
-                    **{f"attributes__{k}__in": [v] if type(v) is not list else v}
-                )
-        if price:
-            query &= Q(price=price)
-        if qty:
-            query &= Q(qty_in_stock=qty)
-        items = ProductItem.objects.select_related("product").filter(
-            query & Q(product=product_id)
+        items = (
+            ProductItem.objects.select_related("product")
+            .filter(product=product_id)
+            .attribute_filter(attr_params, price=price, qty=qty)
         )
         return items
 
+    # Getting all the attributes unique keys with their respective values
+
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
-        values = qs.values_list("attributes", flat=True).distinct()
-        unique_values = set(value for item in values for value in item.keys())
+        attributes = qs.values_list("attributes", flat=True).distinct()
+        result = defaultdict(list)
+        for item in attributes:
+            for k, v in item.items():
+                if v not in result[k]:
+                    result[k].append(v)
+
         serializer = self.get_serializer(qs, many=True)
-        resp = {"attributes": unique_values, "items": serializer.data}
+        resp = {
+            "attributes": dict(result),
+            "items": serializer.data,
+        }
         return Response(resp)
 
 
