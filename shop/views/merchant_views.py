@@ -6,6 +6,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from collections import defaultdict
 from shop.serializers import (
     MerchantOrderItemSerializer,
+    MerchantProductItemSerializer,
     ProductItemSerializer,
     ProductTypeSerializer,
     UserProductSerializer,
@@ -46,13 +47,13 @@ class MerchantProductFilter(django_filters.FilterSet):
 
 
 class CreateItemView(generics.CreateAPIView):
-    serializer_class = ProductItemSerializer
+    serializer_class = MerchantProductItemSerializer
     queryset = ProductItem.objects.all()
-    parser_classes = [parsers.JSONParser]
+    parser_classes = [parsers.JSONParser, parsers.MultiPartParser]
 
 
 class GetItemView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = ProductItemSerializer
+    serializer_class = MerchantProductItemSerializer
     queryset = ProductItem.objects.all()
 
     def update(self, request, *args, **kwargs):
@@ -106,16 +107,10 @@ class ListProductItems(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
-        attributes = qs.values_list("attributes", flat=True).distinct()
-        result = defaultdict(list)
-        for item in attributes:
-            for k, v in item.items():
-                if v not in result[k]:
-                    result[k].append(v)
-
+        attributes = qs.get_unique_attributes()
         serializer = self.get_serializer(qs, many=True)
         resp = {
-            "attributes": dict(result),
+            "attributes": attributes,
             "items": serializer.data,
         }
         return Response(resp)

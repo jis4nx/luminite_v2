@@ -48,9 +48,6 @@ class CategoryView(generics.ListCreateAPIView):
     serializer_class = SimpleCategorySerializer
 
 
-
-
-
 class ProductView(viewsets.ModelViewSet):
     parser_classes = [parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser]
     queryset = Product.objects.all()
@@ -97,7 +94,8 @@ class ShopItemRetrieveView(APIView):
     def get(self, request, pk):
         product_item = generics.get_object_or_404(ProductItem, pk=pk)
         product = product_item.product
-        items = product.product_items.select_related("product").all()
+        items = product.product_items.all()
+        attributes = items.get_unique_attributes()
         items_serializer = ProductItemSerializer(
             items, many=True, context={"request": request}
         )
@@ -108,7 +106,9 @@ class ShopItemRetrieveView(APIView):
         data = {
             "product": product_serializer.data,
             "items": items_serializer.data,
+            "attributes": attributes,
             "item": item_serializer.data,
+            "attributes": attributes,
         }
         return Response(data)
 

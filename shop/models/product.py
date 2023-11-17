@@ -1,10 +1,15 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from accounts.models import Seller
 from shop.models.managers import ProductItemManager
 
-from .choices import ProductSize, Colors, Status, DeliveryMethods, PaymentMethod
+from .choices import (
+    ColorChoices,
+    ProductSize,
+    Status,
+    DeliveryMethods,
+    PaymentMethod,
+)
 from .user import Address, UserProfile
 
 
@@ -49,7 +54,7 @@ class Category(models.Model):
 
 
 class ProductType(models.Model):
-    product_type = models.CharField(max_length=20)
+    product_type = models.CharField(max_length=20, unique=True)
     attributes = ArrayField(models.CharField(max_length=100))
 
     def __str__(self):
@@ -78,7 +83,11 @@ class ProductItem(models.Model):
         max_length=20, choices=ProductSize.choices, null=True, blank=True
     )
     product_color = models.CharField(
-        max_length=20, choices=Colors.choices, null=True, blank=True
+        max_length=20,
+        choices=ColorChoices.choices(),
+        default=None,
+        null=True,
+        blank=True,
     )
     attributes = models.JSONField(default=dict)
     qty_in_stock = models.PositiveIntegerField()
@@ -86,6 +95,9 @@ class ProductItem(models.Model):
     price = models.FloatField()
 
     objects = ProductItemManager()
+
+    def color_hex(self):
+        return ColorChoices.color_code(self.product_color)
 
     def __str__(self):
         return self.product.name

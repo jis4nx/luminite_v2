@@ -83,16 +83,22 @@ class MerchantProductItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductItem
-        fields = ["qty_in_stock", "price", "attributes", "product_id", "product_type"]
+        fields = [
+            "qty_in_stock",
+            "price",
+            "attributes",
+            "product_id",
+            "product_type",
+            "image",
+        ]
 
     def create(self, validated_data):
         productKey = self.validated_data["product_id"]
         qty = self.validated_data["qty_in_stock"]
         price = self.validated_data["price"]
         attributes = self.validated_data["attributes"]
-        product_type = ProductType.objects.get(
-            product_type=self.validated_data["product_type"]
-        )
+        productType = self.validated_data["product_type"]
+        product_type = ProductType.objects.get(product_type=productType)
         product = Product.objects.get(id=productKey)
         if self.instance is None:
             product_item = ProductItem.objects.create(
@@ -101,6 +107,7 @@ class MerchantProductItemSerializer(serializers.ModelSerializer):
                 price=price,
                 attributes=attributes,
                 product_type=product_type,
+                image=self.validated_data["image"],
             )
         return product_item
 
@@ -141,6 +148,7 @@ class ProductItemSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         rep["name"] = instance.product.name
+        rep["product_type"] = instance.product_type.product_type
         return rep
 
 
