@@ -17,6 +17,7 @@ from shop.models.product import (
     OrderItem,
     Order,
     ProductType,
+    Review,
 )
 from shop.serializers import (
     ProductItemSerializer,
@@ -24,6 +25,7 @@ from shop.serializers import (
     CategorySerializer,
     OrderItemSerializer,
     OrderSerializer,
+    ReviewSerializer,
     SimpleCategorySerializer,
     UserPaymentSerializer,
     UserProductSerializer,
@@ -326,3 +328,14 @@ class ProductItemFilter(APIView):
         if request.data:
             return Response(items)
         return Response([])
+
+
+class UserReview(generics.ListCreateAPIView):
+    serializer_class = ReviewSerializer
+    queryset = Review.objects.all()
+    parser_classes = [parsers.JSONParser, parsers.FormParser]
+
+
+class RetrieveUserReview(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ReviewSerializer
+    queryset = Review.objects.all()

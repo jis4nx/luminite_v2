@@ -66,5 +66,5 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         user = self.context["request"].user
         rep = super().to_representation(instance)
-        rep["user"] = {"email": user.email}
+        rep["user"] = {"email": user.email, "id": user.id}
         return rep

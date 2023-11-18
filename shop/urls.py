@@ -46,4 +46,10 @@ urlpatterns = [
     path("invoice/<int:orderId>", user_views.GetInvoicePDF.as_view(), name="invoice"),
     path("search", user_views.SearchProduct.as_view(), name="search-product"),
     path("filter-item", user_views.ProductItemFilter.as_view(), name="search-product"),
+    path("reviews", user_views.UserReview.as_view(), name="user-review"),
+    path(
+        "reviews/<int:pk>",
+        user_views.RetrieveUserReview.as_view(),
+        name="get-user-review",
+    ),
 ] + merchant_urls
