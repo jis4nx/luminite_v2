@@ -61,7 +61,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["id", "user", "image", "address"]
+        fields = ["id", "user", "image", "address", "first_name", "last_name", "phone"]
 
     def to_representation(self, instance):
         user = self.context["request"].user

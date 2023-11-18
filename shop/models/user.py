@@ -9,9 +9,15 @@ from LuminiteV2.settings import BASE_DIR
 
 class UserProfile(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    phone = models.CharField(max_length=11)
 
-    image = models.ImageField(upload_to='profile_pic',
-                              default='static/profile.png')
+    image = models.ImageField(upload_to="profile_pic", default="static/profile.png")
+
+    @property
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
         return self.user.email
@@ -26,13 +32,13 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=30)
     default = models.BooleanField(default=False)
     user_profile = models.ForeignKey(
-        UserProfile, on_delete=models.CASCADE, related_name='addresses')
+        UserProfile, on_delete=models.CASCADE, related_name="addresses"
+    )
 
     def save(self, *args, **kwargs):
         user_addresses = self.user_profile.addresses.count()
         if user_addresses > 5:
-            raise ValidationError(
-                "Maximum address limit reached for this user.")
+            raise ValidationError("Maximum address limit reached for this user.")
         super().save(*args, **kwargs)
 
     def __str__(self):
