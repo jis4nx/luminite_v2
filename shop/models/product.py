@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
-from accounts.models import Seller
+from accounts.models import Customer, Seller
 from shop.models.managers import ProductItemManager
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from .choices import (
     ColorChoices,
@@ -167,3 +168,25 @@ class OrderItem(models.Model):
 
     class Meta:
         ordering = ("-updated_at",)
+
+
+class Review(models.Model):
+    user = models.ForeignKey(
+        Customer, on_delete=models.SET_NULL, null=True, related_name="reviews"
+    )
+    product_item = models.ForeignKey(
+        ProductItem, on_delete=models.CASCADE, related_name="item_reviews"
+    )
+    body = models.TextField(blank=True)
+    rating = models.PositiveSmallIntegerField(
+        validators=[MaxValueValidator(5), MinValueValidator(1)]
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "product_item"], name="unique_review"
+            )
+        ]

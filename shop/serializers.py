@@ -2,6 +2,7 @@ from accounts.serializers import AddressSerializer
 from .models.product import (
     Product,
     ProductItem,
+    Review,
     UserPayment,
     Category,
     Order,
@@ -140,6 +141,20 @@ class MerchantProductItemSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError("Check Product Type & Attributes")
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        user_info = dict(
+            image=instance.user.userprofile.image.url, email=instance.user.email
+        )
+        rep["user"] = user_info
+        return rep
+
+
 class ProductItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductItem
@@ -147,7 +162,12 @@ class ProductItemSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
+        reviews = instance.item_reviews.all()
+        review_serializer = ReviewSerializer(
+            reviews, many=True
+        )
         rep["name"] = instance.product.name
+        rep["reviews"] = review_serializer.data
         rep["product_type"] = instance.product_type.product_type
         return rep
 

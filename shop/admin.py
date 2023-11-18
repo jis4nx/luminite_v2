@@ -6,8 +6,9 @@ from .models.product import (
     Product,
     Order,
     OrderItem,
+    Review,
     UserPayment,
-    ProductType
+    ProductType,
 )
 from django.contrib.admin import ModelAdmin
 
@@ -32,3 +33,4 @@ admin.site.register(OrderItem)
 admin.site.register(UserPayment)
 admin.site.register(Address)
 admin.site.register(ProductType)
+admin.site.register(Review)
