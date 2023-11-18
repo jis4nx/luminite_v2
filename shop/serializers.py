@@ -146,6 +146,19 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = "__all__"
 
+    def validate(self, data):
+        user = data.get("user")
+        product_item = data.get("product_item")
+
+        existing_reviews = Review.objects.filter(user=user, product_item=product_item)
+
+        if existing_reviews.exists():
+            raise serializers.ValidationError(
+                "A review for this user and product item already exists!"
+            )
+
+        return data
+
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         user_info = dict(
@@ -163,9 +176,7 @@ class ProductItemSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         reviews = instance.item_reviews.all()
-        review_serializer = ReviewSerializer(
-            reviews, many=True
-        )
+        review_serializer = ReviewSerializer(reviews, many=True)
         rep["name"] = instance.product.name
         rep["reviews"] = review_serializer.data
         rep["product_type"] = instance.product_type.product_type
