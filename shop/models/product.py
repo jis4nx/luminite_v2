@@ -74,6 +74,7 @@ class Product(models.Model):
 
 
 class ProductItem(models.Model):
+    title = models.CharField(max_length=255)
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="product_items"
     )

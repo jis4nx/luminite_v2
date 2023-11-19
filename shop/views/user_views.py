@@ -2,6 +2,7 @@ from django.db.models import Q, Prefetch, F
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.views import generic
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
 from rest_framework import generics, parsers
@@ -273,58 +274,58 @@ class OrderItemCreateView(generics.CreateAPIView):
         return Response(order.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SearchProduct(APIView):
-    def get(self, request):
+class SearchProduct(generics.ListAPIView):
+    serializer_class = ProductItemSerializer
+
+    def get_queryset(self):
         product_name = self.request.query_params.get("product", None)
         category_id = self.request.query_params.get("category", None)
-        if product_name or category_id:
-            product_objs = self.filter_products_with_items(
-                product=product_name, category=category_id
-            )
-            res = self.serialize_products(product_objs)
-            return Response(res)
 
-    def filter_products_with_items(self, product=None, category=None):
-        first_product_item = ProductItem.objects.filter(
-            product=OuterRef("pk"), qty_in_stock__gt=1
-        ).order_by("id")
-
-        query = Q()
-
-        if product is not None:
-            query |= Q(name__icontains=product)
-
-        if category is not None:
-            query |= Q(category=category)
-
-        product_objs = Product.objects.filter(query).annotate(
-            first_item_id=Subquery(first_product_item.values("id")[:1])
+        products = Product.objects.prefetch_related("product_items").filter(
+            Q(name__icontains=product_name)
+            | Q(category=category_id)
+            | Q(category__name__icontains=product_name)
         )
+        items = (
+            ProductItem.objects.prefetch_related("item_reviews__user")
+            .select_related(
+                "product__category",
+                "product_type",
+            )
+            .filter(product__in=products)
+        )
+        return items
 
-        return product_objs
-
-    def serialize_products(self, product_objs):
-        res = [
-            {
-                "name": product.name,
-                "item": ProductItemSerializer(
-                    product.product_items.get(id=product.first_item_id)
-                ).data,
-                "items": ProductItemSerializer(product.product_items, many=True).data,
-            }
-            for product in product_objs
-        ]
-        return res
+    def list(self, request):
+        serializer_data = self.get_serializer(self.get_queryset(), many=True).data
+        list_id = self.get_queryset().values_list("id", flat=True)
+        data = dict(items=serializer_data, list_id=list_id)
+        return Response(data)
 
 
 class ProductItemFilter(APIView):
     def post(self, request):
         attr_data = {k: v for k, v in request.data.get("attributes").items() if v}
+        list_id = request.data.get("list_id")
+        color_data = request.data.get("colors")
+        query = Q()
+        color_query = Q(product_color__in=color_data)
         price = request.data.get("price")
         attr_query = Q(**{f"attributes__{k}__in": v for k, v in attr_data.items()})
         price_query = Q(price__gte=price.get("min"), price__lte=price.get("max"))
-        filtered_items = ProductItem.objects.filter(attr_query, price_query)
-        items = ProductItemSerializer(filtered_items, many=True).data
+        if color_data:
+            query &= color_query
+        if attr_data:
+            query &= attr_query
+        if price:
+            query &= price_query
+        filtered_items = ProductItem.objects.filter(query, id__in=list_id)
+        print(query)
+        print(list_id)
+        print(filtered_items)
+        items = ProductItemSerializer(
+            filtered_items, many=True, context={"request": request}
+        ).data
         if request.data:
             return Response(items)
         return Response([])

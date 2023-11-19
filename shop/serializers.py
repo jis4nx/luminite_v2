@@ -162,7 +162,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         user_info = dict(
-            image=instance.user.userprofile.image.url, email=instance.user.email
+            image=instance.user.userprofile.image.url,
+            name=instance.user.userprofile.full_name,
         )
         rep["user"] = user_info
         return rep

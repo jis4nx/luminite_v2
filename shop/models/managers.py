@@ -7,7 +7,7 @@ class ProductItemQuerySet(models.QuerySet):
     def attribute_filter(self, attributes, price=None, qty=None):
         query = Q()
         for k, v in attributes.lists():
-            if k not in ["qty", "price"]:
+            if k not in ["qty", "price", "product", "category"]:
                 query &= Q(
                     **{f"attributes__{k}__in": [v] if type(v) is not list else v}
                 )
