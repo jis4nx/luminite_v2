@@ -1,7 +1,13 @@
+from rest_framework import permissions
 from rest_framework.generics import CreateAPIView, ListCreateAPIView, mixins
 from rest_framework.parsers import FormParser, JSONParser
 from rest_framework.response import Response
-from .serializers import AddressSerializer, RegisterSerializer, UserProfileSerializer
+from .serializers import (
+    AddressSerializer,
+    ChangePasswordSerializer,
+    RegisterSerializer,
+    UserProfileSerializer,
+)
 from .models import User
 from LuminiteV2.settings import SIMPLE_JWT
 from rest_framework_simplejwt.views import TokenObtainPairView, generics
@@ -127,6 +133,12 @@ class ProfileView(APIView):
         )
 
 
+class ProfileUpdateView(generics.UpdateAPIView):
+    serializer_class = UserProfileSerializer
+    queryset = UserProfile.objects.all()
+
+
+# Check For The User Type CUSTOMER/SELLER
 class CheckType(APIView):
     def get(self, request):
         data = {"is_seller": False, "is_user": False}
@@ -154,3 +166,9 @@ class GetAddressView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Address.objects.filter(user_profile=self.request.user.userprofile)
+
+
+class ChangePasswordView(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ChangePasswordSerializer
+    queryset = User.objects.all()
