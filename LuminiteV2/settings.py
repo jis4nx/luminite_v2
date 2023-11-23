@@ -164,7 +164,7 @@ CORS_ORIGIN_WHITELIST = [
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = ["*"]
-CSRF_TRUSTED_ORIGINS = ["https://*railway.app"]
+CSRF_TRUSTED_ORIGINS = ["https://*railway.app", "https://luminitev2-production.up.railway.app"]
 
 
 INTERNAL_IPS = ["127.0.0.1"]
