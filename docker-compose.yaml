@@ -8,20 +8,32 @@ services:
       - "8001:8001"
     volumes:
       - .:/app
-    command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
-    environment:
-      HOST_TYPE: DEV
+      - static_data:/app/staticfiles
+    command: gunicorn LuminiteV2.wsgi:application --bind 0.0.0.0:8000
+    env_file:
+      - ./.env
     depends_on:
       - db3
 
   db3:
     container_name: pgdb
     image: postgres:13
+    restart: always
     environment:
       POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_data:/app/staticfiles
+      - media_data:/app/media
+    ports:
+      - "80:80"
+    depends_on:
+      - web3
 
 volumes:
+  static_data:
+  media_data:
   postgres_data:

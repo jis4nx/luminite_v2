@@ -34,4 +34,7 @@ django-cors-headers==4.0.0
 django-sslserver
 django-filter
 django-debug-toolbar
+drf-spectacular-sidecar
 weasyprint
+gunicorn
+
