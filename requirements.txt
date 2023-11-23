@@ -37,4 +37,4 @@ django-debug-toolbar
 drf-spectacular-sidecar
 weasyprint
 gunicorn
-
+whitenoise
