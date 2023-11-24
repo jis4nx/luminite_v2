@@ -27,8 +27,8 @@ share/python-wheels/
 MANIFEST
 
 
-/media/*
 !/media/static/
+/media/*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
