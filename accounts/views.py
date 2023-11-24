@@ -34,7 +34,7 @@ class CustomTokenPairView(TokenObtainPairView):
             value=token_access,
             httponly=True,
             samesite="Lax",
-            secure=False,
+            secure=True,
             expires=datetime.now() + SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
         )
         res.set_cookie(
