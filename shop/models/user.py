@@ -13,7 +13,7 @@ class UserProfile(models.Model):
     last_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=11)
 
-    image = models.ImageField(upload_to="profile_pic", default="/static/profile.png")
+    image = models.ImageField(upload_to="profile_pic", default="static/profile.png")
 
     @property
     def full_name(self):
