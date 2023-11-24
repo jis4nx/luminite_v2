@@ -3,7 +3,6 @@ from corsheaders.defaults import default_headers
 from pathlib import Path
 import os
 from datetime import timedelta
-from django.core.management.utils import get_random_secret_key
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -14,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY", default=get_random_secret_key())
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
@@ -29,7 +28,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "whitenoise.runserver_nostatic",
     "rest_framework",
     "rest_framework_simplejwt",
     "django_extensions",
@@ -46,15 +44,17 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "LuminiteV2.urls"
@@ -141,35 +141,31 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 
-STATIC_FILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
+# STATIC_FILES_DIRS = [
+#     os.path.join(BASE_DIR, "static"),
+#     os.path.join(BASE_DIR, "public/static"),
+# ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-MEDIA_URL = "media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
 
-CORS_ORIGIN_WHITELIST = ["http://127.0.0.1:3000", "https://luminitev2.vercel.app"]
+CORS_ORIGIN_WHITELIST = [
+    "http://127.0.0.1:3000",
+
+]
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = [
-    "https://*railway.app",
-    "https://luminitev2.vercel.app",
-    "https://luminitev2-production.up.railway.app",
-]
-CSRF_TRUSTED_ORIGINS = [
-    "https://luminitev2.vercel.app",
-    "https://*railway.app",
-    "https://luminitev2-production.up.railway.app",
-]
+CSRF_TRUSTED_ORIGINS = ["https://*railway.app", "https://luminitev2-production.up.railway.app"]
+CSRF_TRUSTED_ORIGINS = ["https://*railway.app", "https://luminitev2-production.up.railway.app"]
 
 
 INTERNAL_IPS = ["127.0.0.1"]
