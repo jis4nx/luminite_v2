@@ -21,4 +21,5 @@ RUN chmod +x /app/entrypoint.sh
 
 COPY . .
 
+CMD ["gunicorn", "LuminiteV2.wsgi:application", "--bind", "0.0.0.0:8000"]
 ENTRYPOINT ["/app/entrypoint.sh"]
