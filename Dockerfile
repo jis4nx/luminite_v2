@@ -14,6 +14,7 @@ RUN pip install -r requirements.txt
 
 RUN mkdir -p /media
 RUN mkdir -p /static
+RUN python manage.py collectstatic --noinput
 
 COPY ./entrypoint.sh .
 RUN sed -i 's/\r$//g' /app/entrypoint.sh
