@@ -159,12 +159,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
 
-CORS_ORIGIN_WHITELIST = [
-    "http://127.0.0.1:3000",
-]
+CORS_ORIGIN_WHITELIST = ["http://127.0.0.1:3000", "https://luminitev2.vercel.app"]
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = ["https://*railway.app", "https://luminitev2-production.up.railway.app"]
-CSRF_TRUSTED_ORIGINS = ["https://*railway.app", "https://luminitev2-production.up.railway.app"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://*railway.app",
+    "https://luminitev2.vercel.app",
+    "https://luminitev2-production.up.railway.app",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://luminitev2.vercel.app",
+    "https://*railway.app",
+    "https://luminitev2-production.up.railway.app",
+]
 
 
 INTERNAL_IPS = ["127.0.0.1"]

@@ -278,14 +278,17 @@ class SearchProduct(generics.ListAPIView):
     serializer_class = ProductItemSerializer
 
     def get_queryset(self):
-        product_name = self.request.query_params.get("product", None)
-        category_id = self.request.query_params.get("category", None)
+        product_name = self.request.query_params.get("product")
+        category_id = self.request.query_params.get("category")
 
-        products = Product.objects.prefetch_related("product_items").filter(
-            Q(name__icontains=product_name)
-            | Q(category=category_id)
-            | Q(category__name__icontains=product_name)
-        )
+        query = Q()
+        if product_name:
+            query |= Q(name__icontains=product_name)
+            query |= Q(category__name__icontains=product_name)
+        if category_id:
+            query |= Q(category=category_id)
+
+        products = Product.objects.prefetch_related("product_items").filter(query)
         items = (
             ProductItem.objects.prefetch_related("item_reviews__user")
             .select_related(
@@ -320,9 +323,6 @@ class ProductItemFilter(APIView):
         if price:
             query &= price_query
         filtered_items = ProductItem.objects.filter(query, id__in=list_id)
-        print(query)
-        print(list_id)
-        print(filtered_items)
         items = ProductItemSerializer(
             filtered_items, many=True, context={"request": request}
         ).data
