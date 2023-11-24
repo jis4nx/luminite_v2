@@ -14,12 +14,13 @@ RUN pip install -r requirements.txt
 
 RUN mkdir -p /media
 RUN mkdir -p /static
-RUN python manage.py collectstatic --noinput
 
 COPY ./entrypoint.sh .
 RUN sed -i 's/\r$//g' /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 COPY . .
+
+RUN python manage.py collectstatic --no-input
 CMD ["gunicorn", "LuminiteV2.wsgi:application", "--bind", "0.0.0.0:8000"]
 ENTRYPOINT ["/app/entrypoint.sh"]
