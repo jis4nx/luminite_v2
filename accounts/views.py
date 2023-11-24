@@ -35,7 +35,7 @@ class CustomTokenPairView(TokenObtainPairView):
             value=token_access,
             httponly=True,
             secure=True,
-            domain=os.getenv("FRONT_SITE"),
+            domain=os.environ.get("FRONT_SITE"),
             expires=datetime.now() + SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
         )
         res.set_cookie(
@@ -43,7 +43,7 @@ class CustomTokenPairView(TokenObtainPairView):
             value=token_refresh,
             httponly=True,
             secure=True,
-            domain=os.getenv("FRONT_SITE"),
+            domain=os.environ.get("FRONT_SITE"),
             expires=datetime.now() + SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
         )
         return res
