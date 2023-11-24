@@ -12,8 +12,8 @@ RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
-RUN mkdir -p media
-RUN mkdir -p static
+RUN mkdir -p /media
+RUN mkdir -p /static
 
 COPY ./entrypoint.sh .
 RUN sed -i 's/\r$//g' /app/entrypoint.sh
