@@ -33,7 +33,7 @@ class CustomTokenPairView(TokenObtainPairView):
             key="access",
             value=token_access,
             httponly=True,
-            samesite="lax",
+            samesite="Lax",
             secure=False,
             expires=datetime.now() + SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
         )
