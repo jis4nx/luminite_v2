@@ -19,7 +19,6 @@ from rest_framework.views import APIView
 from shop.models.user import Address, UserProfile
 from django_filters import rest_framework as filters
 from rest_framework.permissions import IsAuthenticated
-import os
 
 
 """Custom TokeObtainPairView"""
@@ -34,8 +33,8 @@ class CustomTokenPairView(TokenObtainPairView):
             key="access",
             value=token_access,
             httponly=True,
+            samesite="None",
             secure=True,
-            domain=os.environ.get("FRONT_SITE"),
             expires=datetime.now() + SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
         )
         res.set_cookie(
@@ -43,7 +42,7 @@ class CustomTokenPairView(TokenObtainPairView):
             value=token_refresh,
             httponly=True,
             secure=True,
-            domain=os.environ.get("FRONT_SITE"),
+            samesite="None",
             expires=datetime.now() + SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
         )
         return res
