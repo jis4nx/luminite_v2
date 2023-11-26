@@ -1,12 +1,13 @@
+from django.db.models.functions import TruncDate
 from rest_framework.views import APIView, Response, status
 from rest_framework import generics, parsers
-from django.db.models import Q, Prefetch
+from django.db.models import F, Q, Count, Prefetch, Sum, IntegerField
 from shop.models.product import OrderItem, Product, ProductType
 from rest_framework.pagination import LimitOffsetPagination
-from collections import defaultdict
 from shop.serializers import (
     MerchantOrderItemSerializer,
     MerchantProductItemSerializer,
+    OrderItemSerializer,
     ProductItemSerializer,
     ProductTypeSerializer,
     UserProductSerializer,
@@ -119,6 +120,39 @@ class ListProductItems(generics.ListAPIView):
 class GetProductTypes(generics.ListAPIView):
     serializer_class = ProductTypeSerializer
     queryset = ProductType.objects.all()
+
+
+class MerchantAnalytics(APIView):
+    def get(self, request):
+        if self.request.user.type == "SELLER":
+            sold_items = self.request.user.sold_items
+            orders = (
+                sold_items.annotate(order_date=TruncDate("created_at"))
+                .values("order_date")
+                .annotate(
+                    total=Sum(F("qty"), output_field=IntegerField()),
+                )
+            )
+
+            total_sold_items = sold_items.aggregate(
+                total_sold=Sum("qty"), total_sales_price=Sum("price")
+            )
+            most_sold_types = (
+                sold_items.values("product_item__product_type__product_type")
+                .annotate(
+                    product_type=F("product_item__product_type__product_type"),
+                    count=Count("product_item"),
+                )
+                .values("product_type", "count")
+            )
+
+            return Response(
+                {
+                    "items": orders,
+                    **total_sold_items,
+                    "most_sold_types": most_sold_types,
+                }
+            )
 
 
 # class MerchantProductItemFilter(django_filters.FilterSet):

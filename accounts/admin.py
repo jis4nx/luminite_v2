@@ -15,7 +15,7 @@ class LuminiteAdmin(UserAdmin):
     list_filter = ("is_active", "is_staff", "is_superuser", "type")
 
     fieldsets = (
-        (None, {"fields": ("email", "password")}),
+        (None, {"fields": ("email", "password", "type")}),
         (
             "Permissions",
             {

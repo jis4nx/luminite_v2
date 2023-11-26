@@ -10,5 +10,10 @@ then
 
     echo "PostgreSQL started"
 fi
-python manage.py collectstatic --no-input
+if [ "$DEVELOPMENT" = 1 ]; then
+	python manage.py runserver 0.0.0.0:8000
+else
+  gunicorn LuminiteV2.wsgi:application --bind 0.0.0.0:8000
+  python manage.py collectstatic --no-input
+fi
 exec "$@"

@@ -149,7 +149,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     merchant_id = models.ForeignKey(
-        Seller, on_delete=models.CASCADE, related_name="merchants"
+        Seller, on_delete=models.CASCADE, related_name="sold_items"
     )
     product_item = models.ForeignKey(
         ProductItem, on_delete=models.SET_NULL, null=True, related_name="order_items"

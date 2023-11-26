@@ -29,6 +29,7 @@ merchant_urls = [
     path("item/", merchant_views.CreateItemView.as_view(), name="create-item"),
     path("merchant-product-items/<int:pk>", merchant_views.ListProductItems.as_view()),
     path("merchant-product-item/<int:pk>", merchant_views.GetItemView.as_view()),
+    path("merchant-analytics/", merchant_views.MerchantAnalytics.as_view()),
 ]
 
 urlpatterns = [
