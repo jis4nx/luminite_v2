@@ -31,12 +31,13 @@ drf-spectacular[sidecar]==0.26.2
 pytest-django==4.5.2
 pytest==7.3.1
 django-cors-headers==4.0.0
-django-sslserver
 django-filter
 django-debug-toolbar
 drf-spectacular-sidecar
+django-sslserver
 weasyprint
 gunicorn
 whitenoise
 celery
 redis
+flower

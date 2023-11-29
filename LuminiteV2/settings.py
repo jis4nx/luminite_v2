@@ -13,7 +13,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = (
+    os.environ.get("SECRET_KEY") if os.environ.get("DEVELOPMENT") is False else "*"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
@@ -37,6 +39,7 @@ INSTALLED_APPS = [
     "sslserver",
     "django_filters",
     "debug_toolbar",
+    "celery",
     # Local Apps
     "shop",
     "accounts",
@@ -141,18 +144,21 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Static & Media Files
+
 STATIC_URL = "/static/"
-
-# STATIC_FILES_DIRS = [
-#     os.path.join(BASE_DIR, "static"),
-#     os.path.join(BASE_DIR, "public/static"),
-# ]
-
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+
+# CELERY CONFIGURAATION
+CELERY_BROKER_URL = "amqp://admin:admin@rabbitmq:5672//"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_SERIALIZER = "json"
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

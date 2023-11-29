@@ -53,4 +53,5 @@ urlpatterns = [
         user_views.RetrieveUserReview.as_view(),
         name="get-user-review",
     ),
+    path("simple", user_views.SimpleView.as_view()),
 ] + merchant_urls

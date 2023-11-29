@@ -34,6 +34,13 @@ from shop.serializers import (
 from accounts.serializers import AddressSerializer
 from shop.models import choices
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from shop.tasks import test
+
+
+class SimpleView(APIView):
+    def get(self, request):
+        test.delay()
+        return Response({"msg": "hello"})
 
 
 class Index(APIView):

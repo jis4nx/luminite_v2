@@ -9,6 +9,8 @@ services:
     volumes:
       - .:/app
       - static_data:/app/staticfiles
+    networks:
+      - shared_network
     env_file:
       - ./.env
     depends_on:
@@ -20,8 +22,19 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
+    networks:
+      - shared_network
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+
+  redis:
+    image: redis:latest
+    networks:
+      - shared_network
+    ports:
+      - "6379:6379"
+
+
   nginx:
     build: ./nginx
     volumes:
@@ -29,8 +42,44 @@ services:
       - media_data:/app/media
     ports:
       - "80:80"
+    networks:
+      - shared_network
+
     depends_on:
       - web3
+
+  rabbitmq:
+      image: rabbitmq:3-management
+      container_name: rabbit
+      hostname: rabbit
+      environment:
+        - RABBITMQ_DEFAULT_USER=admin
+        - RABBITMQ_DEFAULT_PASS=admin
+        - RABBITMQ_DEFAULT_VHOST=/
+      ports:
+        - "5682:5672"
+        - "15682:15672"
+      networks:
+        - shared_network
+
+  celery:
+    build: ./celery
+    container_name: celery-worker
+    command: celery -A LuminiteV2 worker -l INFO
+    ports:
+      - "5555:5555"
+    networks:
+        - shared_network
+    volumes:
+      - .:/app
+    depends_on:
+      - rabbitmq
+      - redis
+      - web3
+
+networks:
+  shared_network:
+    driver: bridge
 
 volumes:
   static_data:
