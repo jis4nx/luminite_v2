@@ -2,14 +2,12 @@ from django.db.models import Q, Prefetch, F
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views import generic
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
 from rest_framework import generics, parsers
 from rest_framework import viewsets
-from shop.utils import gen_pdf
-from django.db.models import OuterRef, Subquery
 from django.db import transaction
+from functools import partial
 
 from shop.models.product import (
     Product,
@@ -31,15 +29,15 @@ from shop.serializers import (
     UserPaymentSerializer,
     UserProductSerializer,
 )
-from accounts.serializers import AddressSerializer
 from shop.models import choices
 from drf_spectacular.utils import extend_schema, extend_schema_view
-from shop.tasks import test
+from shop.tasks import send_invoice_mail
+
+from shop.utils import generate_invoice
 
 
 class SimpleView(APIView):
     def get(self, request):
-        test.delay()
         return Response({"msg": "hello"})
 
 
@@ -195,47 +193,8 @@ class GetUserOrders(APIView):
 class GetInvoicePDF(APIView):
     def get(self, request, orderId):
         if not self.request.user.is_anonymous:
-            orderObj = (
-                Order.objects.select_related("user", "payment", "delivery_address")
-                .prefetch_related(
-                    Prefetch(
-                        "items",
-                        queryset=OrderItem.objects.select_related(
-                            "product_item__product"
-                        ),
-                    )
-                )
-                .get(user=request.user.userprofile, id=orderId)
-            )
-
-            data = {
-                "order": {
-                    "id": orderObj.id,
-                    "payment": UserPaymentSerializer(orderObj.payment).data,
-                    "deliveryAddress": AddressSerializer(
-                        orderObj.delivery_address
-                    ).data,
-                    "deliveryMethod": orderObj.delivery_method,
-                    "orderDate": orderObj.created_at,
-                    "totalPrice": orderObj.get_total_cost(),
-                    "user": orderObj.user.user.email,
-                },
-                "products": [
-                    {
-                        "id": item.product_item.id,
-                        "name": item.product_item.product.name,
-                        "image": item.product_item.image.url,
-                        "price": item.price,
-                        "qty": item.qty,
-                        "subTotal": item.qty * item.price,
-                    }
-                    for item in orderObj.items.all()
-                ],
-            }
-
-            pdf = gen_pdf(
-                "invoice1.html", {"order": data["order"], "products": data["products"]}
-            )
+            user_profile = self.request.user.id
+            pdf = generate_invoice(user_profile, orderId)
             return HttpResponse(pdf, content_type="application/pdf")
         return HttpResponseForbidden(
             "<center>Unauthorized Request, Please Login to view this page</center>"
@@ -254,12 +213,16 @@ class OrderItemCreateView(generics.CreateAPIView):
         order = OrderSerializer(data=order_data)
 
         if order.is_valid():
+            order_id = None
             with transaction.atomic():
                 order_instance = order.save()
+                order_id = order_instance.id
                 order_item_data = []
                 for item in items_data:
                     item_id = item.get("product_item")
-                    product_item = ProductItem.objects.select_related().get(id=item_id)
+                    product_item = ProductItem.objects.select_for_update().get(
+                        id=item_id
+                    )
                     order_item_data.append(
                         dict(
                             item,
@@ -276,6 +239,14 @@ class OrderItemCreateView(generics.CreateAPIView):
                 )
                 if order_item_serializer.is_valid():
                     order_item_serializer.save()
+                    transaction.on_commit(
+                        partial(
+                            send_invoice_mail.delay,
+                            user_id=self.request.user.id,
+                            receiver=order_data["email"],
+                            order_id=order_id,
+                        )
+                    )
                     return Response({"msg": "success"}, status=status.HTTP_201_CREATED)
 
         return Response(order.errors, status=status.HTTP_400_BAD_REQUEST)

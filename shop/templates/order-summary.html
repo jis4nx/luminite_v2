@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Dynamic Invoice Generator</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400&display=swap"
+      rel="stylesheet"
+    />
+    <style type="text/css">
+      
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: roboto;
+      background: white;
+    }
+
+    .material-icons {
+      cursor: pointer;
+    }
+
+    .invoice-container {
+      margin: auto;
+      padding: 0px 20px;
+    }
+
+    .invoice-header {
+      display: flex;
+      padding: 70px 0%;
+      width: 100%;
+    }
+
+    .title {
+      font-size: 18px;
+      letter-spacing: 3px;
+      color: rgb(66, 66, 66);
+    }
+
+    .date {
+      padding: 5px 0px;
+      font-size: 14px;
+      letter-spacing: 3px;
+      color: rgb(156, 156, 156);
+    }
+
+    .invoice-number {
+      font-size: 17px;
+      letter-spacing: 2px;
+      color: rgb(156, 156, 156);
+    }
+
+    .space {
+      width: 50%;
+    }
+
+    table {
+      table-layout: auto;
+      width: 100%;
+    }
+    table,
+    th,
+    td {
+      border-collapse: collapse;
+    }
+
+    th {
+      padding: 10px 0px;
+      border-bottom: 1px solid rgb(187, 187, 187);
+      border-bottom-style: dashed;
+      font-weight: 400;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: gray;
+      text-align: left;
+    }
+
+    td {
+      padding: 15px 10px;
+      border-bottom: 0.5px solid rgb(226, 226, 226);
+      text-align: left;
+    }
+
+    .total__text {
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: black;
+    }
+
+    .total {
+      display: flex;
+      font-size: 1rem;
+      justify-content: space-between;
+      padding-top: 2em;
+    }
+
+    number {
+      text-align: center;
+      max-width: 50px;
+      font-size: 15px;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+
+    product_text {
+      max-width: 170px;
+      text-align: left;
+      font-size: 15px;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+
+    #sum {
+      text-align: right;
+      width: 100%;
+    }
+
+    /* Medium devicekalker s (landscape tablets, 768px and up) */
+    @media only screen and (min-width: 768px) {
+      body {
+        background: lemonchiffon;
+      }
+      .invoice-container {
+        border: solid 1px gray;
+        width: 60%;
+        margin: 50px auto;
+        padding: 40px;
+        padding-bottom: 100px;
+        border-radius: 5px;
+        background: white;
+        box-shadow:
+          0 2.8px 2.2px rgba(0, 0, 0, 0.02),
+          0 6.7px 5.3px rgba(0, 0, 0, 0.028),
+          0 12.5px 10px rgba(0, 0, 0, 0.035),
+          0 22.3px 17.9px rgba(0, 0, 0, 0.042),
+          0 41.8px 33.4px rgba(0, 0, 0, 0.05),
+          0 100px 80px rgba(0, 0, 0, 0.07);
+      }
+
+      .title-date {
+        width: 20%;
+      }
+      .invoice-number {
+        width: 20%;
+      }
+      .space {
+        width: 80%;
+      }
+    }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-container">
+      <div class="invoice-header">
+        <div class="title-date">
+          <h4 class="title">ORDER SUMMARY</h2>
+          <p class="date">Date: {{ order.orderDate|date:'Y-m-d H:i' }}</p>
+        </div>
+        <div class="space"></div>
+        <p class="invoice-number">ORDER ID #{{order.id}}</p>
+      </div>
+      <div class="invoice-body">
+        <table>
+          <thead>
+            <th style="padding-left: 12px">PRODUCT</th>
+            <th>UNIT</th>
+            <th>PRICE</th>
+            <th>AMOUNT</th>
+          </thead>
+
+          <tbody id="table-body">
+            {% for product in products %}
+            <tr class="single-row">
+              <td>
+                <p class="product product_text">{{product.name}}</p>
+              </td>
+              <td>
+                <p class="unit number">{{product.qty}}</p>
+              </td>
+              <td>
+                <p class="price number">{{product.price}}</p>
+              </td>
+              <td>
+                <p class="amount number">{{product.subTotal}}</p>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div id="sum" class="total">
+          <p class="total__text">Total Price</p>
+          <p class="total__text">{{order.totalPrice}}</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,84 +1,87 @@
 <html>
   <head>
+    <title>Invoice</title>
     <style>
-      @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700, 500);
-      #viewer{
-        zoom: 100%;
-      }
-      html {
-        font-family: "Open Sans";
-      }
-      @page {
-        size: A4;
-      }
-        @top-center {
-          content: "LUMINITE V2";
-          color: #3730a3;
-          font-family: "Open Sans";
-          font-weight: 500;
-          font-size: 1.5rem;
-        }
-      }
-      .head p {
-        font-size: 0.8rem;
-      }
-      .head1 {
-        display: flex;
-        justify-content: space-between;
-      }
-      .invoice-table {
-        margin-top: 3rem;
-        margin-left: auto;
-        margin-right: auto;
-        font-family: "Open Sans";
-        border-spacing: 0 15px;
-        border-collapse: collapse;
-        width: 700px;
-      }
-      .invoice-table thead tr {
-        font-style: normal;
-        font-size: 1rem;
-        border-bottom: 1px solid gray;
-      }
+          @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700, 500);
+          #viewer{
+            zoom: 100%;
+          }
+          html {
+            font-family: "Open Sans";
+          }
+          @page {
+            size: A4;
 
-      .invoice-table thead tr td {
-        padding: 0.5rem;
-      }
-      .invoice-table tbody tr {
-        font-size: 0.8rem;
-        border-bottom: 1px solid gray;
-      }
-      .invoice-table tbody tr td {
-        padding: 0.8rem;
-      }
-      .invoice-footer {
-        text-align: right;
-        margin-right: 10px;
-        font-weight: 700;
-      }
-      .billing {
-        display: flex;
-        margin-top: 5rem;
-        justify-content: space-between;
-      }
+            @top-left {
+              content: "LUMINITE V2";
+			  padding-top:30px;
+              color: #3730a3;
+              font-family: "Open Sans";
+              font-weight: 700;
+              font-size: 1.5rem;
+            }
+          }
+          }
+          .head p {
+            font-size: 0.8rem;
+          }
+          .head1 {
+            display: flex;
+            justify-content: space-between;
+          }
+          .invoice-table {
+            margin-top: 3rem;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: "Open Sans";
+            border-spacing: 0 15px;
+            border-collapse: collapse;
+            width: 700px;
+          }
+          .invoice-table thead tr {
+            font-style: normal;
+            font-size: 1rem;
+            border-bottom: 1px solid gray;
+          }
 
-      .legend {
-        text-transform: uppercase;
-        font-size: 1.1rem;
-        color: #54626f;
-        width: 220px;
-        font-weight: 500;
-      }
-      .billing p {
-        font-size: 0.9rem;
-      }
-      .msg {
-        margin-top: 2rem;
-      }
-      .head__legend {
-        color: #3730a3;
-        font-size: 1.05rem;
-      }
+          .invoice-table thead tr td {
+            padding: 0.5rem;
+          }
+          .invoice-table tbody tr {
+            font-size: 0.8rem;
+            border-bottom: 1px solid gray;
+          }
+          .invoice-table tbody tr td {
+            padding: 0.8rem;
+          }
+          .invoice-footer {
+            text-align: right;
+            margin-right: 10px;
+            font-weight: 700;
+          }
+          .billing {
+            display: flex;
+            margin-top: 5rem;
+            justify-content: space-between;
+          }
+
+          .legend {
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            color: #54626f;
+            width: 220px;
+            font-weight: 500;
+          }
+          .billing p {
+            font-size: 0.9rem;
+          }
+          .msg {
+            margin-top: 2rem;
+          }
+          .head__legend {
+            color: #3730a3;
+            font-size: 1.05rem;
+          }
     </style>
   </head>
   <body>

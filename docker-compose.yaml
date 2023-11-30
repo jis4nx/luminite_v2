@@ -66,6 +66,8 @@ services:
     build: ./celery
     container_name: celery-worker
     command: celery -A LuminiteV2 worker -l INFO
+    env_file:
+      - ./.env
     ports:
       - "5555:5555"
     networks:
