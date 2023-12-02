@@ -1,8 +1,12 @@
+from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
 import pytest
+from rest_framework.parsers import json
 from shop.models.choices import PaymentMethod
 from shop.models.product import Product, Category, ProductItem, ProductType, UserPayment
 from shop.serializers import UserPaymentSerializer
+from django.conf import settings
+from PIL import Image
 
 
 @pytest.fixture
@@ -39,9 +43,10 @@ def product_typeA(db):
 
 @pytest.fixture
 @pytest.mark.django_db
-def product_itemA(new_product):
+def product_itemA(new_product, product_typeA):
     item = ProductItem.objects.create(
         product=new_product,
+        product_type=product_typeA,
         image=SimpleUploadedFile(
             name="default.jpg",
             content=open("media/static/profile.png", "rb").read(),
@@ -68,12 +73,19 @@ def product_item_factory_json(product_typeA):
     def create_product_item_json(
         product=new_product, qty=10, price=1500, attributes={}
     ):
+        image_data = BytesIO()
+        image = Image.new("RGB", (100, 100), "white")
+        image.save(image_data, format="png")
+        image_data.seek(0)
         data = {
-            "product_type": "Cloth",
+            "product_type": product_typeA.product_type,
             "price": price,
-            "product": product.pk,
-            "qty": qty,
-            "attributes": attributes,
+            "product_id": product.pk,
+            "qty_in_stock": qty,
+            "attributes": json.dumps(attributes),
+            "image": SimpleUploadedFile(
+                "test.png", image_data.read(), content_type="image/png"
+            ),
         }
         return data
 
@@ -96,6 +108,7 @@ def order_item_factory(new_payment, new_addressA, new_userA):
                 "delivery_method": delivery_method,
                 "user": user.pk,
                 "delivery_address": delivery_address.pk,
+                "email": "testmail@gmail.com",
             },
             "items": [
                 dict(product_item=item.pk, price=item.price, qty=qty) for item in items

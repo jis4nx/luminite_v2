@@ -81,6 +81,7 @@ class MerchantProductItemSerializer(serializers.ModelSerializer):
 
     product_id = serializers.IntegerField()
     product_type = serializers.CharField()
+    image = serializers.ImageField()
 
     class Meta:
         model = ProductItem

@@ -247,7 +247,9 @@ class OrderItemCreateView(generics.CreateAPIView):
                             order_id=order_id,
                         )
                     )
-                    return Response({"msg": "success"}, status=status.HTTP_201_CREATED)
+                    return Response(
+                        {"order": order_id}, status=status.HTTP_201_CREATED
+                    )
 
         return Response(order.errors, status=status.HTTP_400_BAD_REQUEST)
 

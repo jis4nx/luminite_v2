@@ -50,7 +50,7 @@ class MerchantProductFilter(django_filters.FilterSet):
 class CreateItemView(generics.CreateAPIView):
     serializer_class = MerchantProductItemSerializer
     queryset = ProductItem.objects.all()
-    parser_classes = [parsers.JSONParser, parsers.MultiPartParser]
+    parser_classes = [parsers.JSONParser, parsers.MultiPartParser, parsers.FormParser]
 
 
 class GetItemView(generics.RetrieveUpdateDestroyAPIView):

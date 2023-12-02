@@ -1,4 +1,5 @@
 import pytest
+from rest_framework.parsers import json
 from rest_framework.test import APIClient
 from shop.models.product import Order, OrderItem
 from shop.serializers import (
@@ -33,11 +34,12 @@ Test For listing all product instances
 """
 
 
-# @pytest.mark.django_db
-# def test_list_product(new_product):
-#     product = client.get(reverse('product-list'))
-#     assert product.status_code == 200
-#
+@pytest.mark.django_db
+def test_list_product(new_product):
+    product = client.get(reverse("product-list"))
+    assert product.status_code == 200
+
+
 """
 Test For Creating Product
 """
@@ -46,6 +48,7 @@ Test For Creating Product
 def test_create_product(new_product):
     product_data = UserProductSerializer(new_product).data
     product_data.pop("id")
+    product_data["category"] = product_data["category"]["id"]
     res = client.post(reverse_lazy("product-list"), product_data, format="json")
     assert res.status_code == 201
 
@@ -56,11 +59,11 @@ Test for creating new Product Item With Json Schema
 
 
 @pytest.mark.django_db
-def test_product_item_json(new_product, product_item_factory_json):
+def test_product_item_json(new_product, product_item_factory_json, client):
     item = product_item_factory_json(
         product=new_product, attributes={"size": "S", "color": "Black"}
     )
-    product = client.post(reverse("create-item"), item, format="json")
+    product = client.post(reverse("create-item"), item, format="multipart")
 
     assert product.status_code == 201
 
@@ -75,7 +78,7 @@ def test_product_item_attribute(new_product, product_item_factory_json):
     item = product_item_factory_json(
         product=new_product, attributes={"size": "M", "space": 2}
     )
-    product = client.post(reverse("create-item"), item, format="json")
+    product = client.post(reverse("create-item"), item, format="multipart")
     assert product.status_code == 400
 
 
