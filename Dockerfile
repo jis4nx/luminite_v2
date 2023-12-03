@@ -12,6 +12,9 @@ RUN pip install -r requirements.txt
 #Final Stage
 FROM python:3.10.9-alpine3.17
 
+ENV PYTHONDONTWRITEBYCODE 1
+ENV PYTHONUNBUFFERED 1
+
 COPY --from=builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY --from=builder /usr/share/fonts/ /usr/share/fonts/
@@ -25,9 +28,6 @@ RUN sed -i 's/\r$//g' /app/entrypoint.sh && \
 	chmod +x /app/entrypoint.sh
 
 COPY . .
-
-ENV PYTHONDONTWRITEBYCODE 1
-ENV PYTHONUNBUFFERED 1
 
 RUN apk add pango libffi
 
