@@ -2,11 +2,46 @@
 .gitignore
 .env
 .venv
+.dockerignore
+.README.md
+Dockerfile
+
 
 
 
 #Python
-app/__pycache__/
-app/*/__pycache__/
-app/*/*/__pycache__/
-app/*/*/*/__pycache__/
+/__pycache__/
+/*/__pycache__/
+/*/*/__pycache__/
+/*/*/*/__pycache__/
+
+.pytest_cache
+*.sqlite3
+*.pyc
+*.pyo
+*.mo
+*.db
+*.css.map
+*.egg-info
+*.sql.gz
+.cache
+.project
+.idea
+.pydevproject
+.idea/workspace.xml
+.DS_Store
+.git/
+.sass-cache
+.vagrant/
+__pycache__
+dist
+docs
+env
+venv
+logs
+src/{{ project_name }}/settings/local.py
+src/node_modules
+web/media
+web/static/CACHE
+stats
+Dockerfile

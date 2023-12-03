@@ -3,11 +3,11 @@ services:
     container_name: web
     build:
       context: .
+    image: luminite:web
     ports:
       - "8000:8000"
       - "8001:8001"
     volumes:
-      - .:/app
       - static_data:/app/staticfiles
     networks:
       - shared_network
@@ -18,7 +18,7 @@ services:
 
   db3:
     container_name: pgdb
-    image: postgres:13
+    image: postgres:13-alpine3.17
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
@@ -63,7 +63,9 @@ services:
         - shared_network
 
   celery:
-    build: ./celery
+    build:
+      context: .
+      dockerfile: celery/Dockerfile
     container_name: celery-worker
     command: celery -A LuminiteV2 worker -l INFO
     env_file:
@@ -72,8 +74,6 @@ services:
       - "5555:5555"
     networks:
         - shared_network
-    volumes:
-      - .:/app
     depends_on:
       - rabbitmq
       - redis
