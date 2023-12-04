@@ -4,6 +4,12 @@
 ### An E-Commerce RESTful API, built on top of Django Rest Framework 
 
 
+Live Swagger UI endpoint
+[LuminiteV2 Swagger UI](https://luminitev2-production.up.railway.app/api/docs)
+
+Live Redoc Api endpoint
+[LuminiteV2 Redoc](https://luminitev2-production.up.railway.app/)
+
 ## Getting started
 
 To start this project, Run:
@@ -16,6 +22,11 @@ To observe the Django server logs
 
 ```
 docker logs web --follow
+```
+Testing
+
+```
+docker exec web pytest
 ```
 
 ### Access Api
