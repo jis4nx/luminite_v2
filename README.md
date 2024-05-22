@@ -1,5 +1,9 @@
-
 # Luminite V2 API
+Live Swagger UI endpoint
+[LuminiteV2 Swagger UI](https://luminitev2-production.up.railway.app/api/docs)
+
+Live Redoc Api endpoint
+[LuminiteV2 Redoc](https://luminitev2-production.up.railway.app/)
 
 ## Description
 ### Scalable Multivendor RESTful E-commerce API
